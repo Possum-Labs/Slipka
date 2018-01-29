@@ -1,0 +1,38 @@
+services:
+  db:
+    image: mongo
+    ports:
+    - 27017:27017/tcp
+  hub:
+    environment:
+      TZ: US/Mountain
+    image: selenium/hub
+    ports:
+    - 4444:4444/tcp
+  node-chrome:
+    depends_on:
+    - hub
+    - slipka
+    environment:
+      HUB_PORT_4444_TCP_ADDR: hub
+      HUB_PORT_4444_TCP_PORT: 4444
+      TZ: US/Mountain
+    image: selenium/node-chrome
+    links:
+    - hub
+    - slipka
+  slipka:
+    build:
+      context: C:\Source\Repos\Slipka\src
+      dockerfile: slipka/Dockerfile
+    depends_on:
+    - db
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+    image: slipka
+    links:
+    - db
+    ports:
+    - 80/tcp
+    - 4445:4445/tcp
+version: '3.0'

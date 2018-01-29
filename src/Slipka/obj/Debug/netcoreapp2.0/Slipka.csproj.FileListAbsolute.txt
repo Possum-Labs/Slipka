@@ -1,0 +1,14 @@
+C:\Source\Repos\Slipka\src\Slipka\bin\Debug\netcoreapp2.0\Slipka.deps.json
+C:\Source\Repos\Slipka\src\Slipka\bin\Debug\netcoreapp2.0\Slipka.runtimeconfig.json
+C:\Source\Repos\Slipka\src\Slipka\bin\Debug\netcoreapp2.0\Slipka.runtimeconfig.dev.json
+C:\Source\Repos\Slipka\src\Slipka\bin\Debug\netcoreapp2.0\Slipka.dll
+C:\Source\Repos\Slipka\src\Slipka\bin\Debug\netcoreapp2.0\Slipka.pdb
+C:\Source\Repos\Slipka\src\Slipka\bin\Debug\netcoreapp2.0\Microsoft.AspNetCore.Proxy.dll
+C:\Source\Repos\Slipka\src\Slipka\bin\Debug\netcoreapp2.0\Microsoft.AspNetCore.Proxy.pdb
+C:\Source\Repos\Slipka\src\Slipka\bin\Debug\netcoreapp2.0\Microsoft.AspNetCore.Proxy.xml
+C:\Source\Repos\Slipka\src\Slipka\obj\Debug\netcoreapp2.0\Slipka.csprojResolveAssemblyReference.cache
+C:\Source\Repos\Slipka\src\Slipka\obj\Debug\netcoreapp2.0\Slipka.csproj.CoreCompileInputs.cache
+C:\Source\Repos\Slipka\src\Slipka\obj\Debug\netcoreapp2.0\Slipka.AssemblyInfoInputs.cache
+C:\Source\Repos\Slipka\src\Slipka\obj\Debug\netcoreapp2.0\Slipka.AssemblyInfo.cs
+C:\Source\Repos\Slipka\src\Slipka\obj\Debug\netcoreapp2.0\Slipka.dll
+C:\Source\Repos\Slipka\src\Slipka\obj\Debug\netcoreapp2.0\Slipka.pdb

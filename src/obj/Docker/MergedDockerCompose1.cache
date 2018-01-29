@@ -1,0 +1,53 @@
+services:
+  db:
+    image: mongo
+    ports:
+    - 27017:27017/tcp
+  hub:
+    environment:
+      TZ: US/Mountain
+    image: selenium/hub
+    ports:
+    - 4444:4444/tcp
+  node-chrome:
+    depends_on:
+    - hub
+    - slipka
+    environment:
+      HUB_PORT_4444_TCP_ADDR: hub
+      HUB_PORT_4444_TCP_PORT: 4444
+      TZ: US/Mountain
+    image: selenium/node-chrome
+    links:
+    - hub
+    - slipka
+  slipka:
+    build:
+      context: C:\Source\Repos\Slipka\src
+      dockerfile: slipka/Dockerfile
+    depends_on:
+    - db
+    entrypoint: tail -f /dev/null
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      DOTNET_USE_POLLING_FILE_WATCHER: '1'
+      NUGET_FALLBACK_PACKAGES: /root/.nuget/fallbackpackages
+    image: slipka:dev
+    labels:
+      com.microsoft.visualstudio.debuggee.arguments: ' --additionalProbingPath /root/.nuget/packages
+        --additionalProbingPath /root/.nuget/fallbackpackages  bin/Debug/netcoreapp2.0/Slipka.dll'
+      com.microsoft.visualstudio.debuggee.killprogram: /bin/bash -c "if PID=$$(pidof
+        -x dotnet); then kill $$PID; fi"
+      com.microsoft.visualstudio.debuggee.program: dotnet
+      com.microsoft.visualstudio.debuggee.workingdirectory: /app
+    links:
+    - db
+    ports:
+    - 80/tcp
+    - 4445:4445/tcp
+    volumes:
+    - C:\Source\Repos\Slipka\src\slipka:/app:rw
+    - C:\Users\live\vsdbg\vs2017u5:/remote_debugger:ro
+    - C:\Program Files\dotnet\sdk\NuGetFallbackFolder:/root/.nuget/fallbackpackages:ro
+    - C:\Users\live\.nuget\packages:/root/.nuget/packages:ro
+version: '3.0'

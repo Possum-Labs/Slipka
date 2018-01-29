@@ -1,0 +1,11 @@
+C:\Source\Repos\Slipka\src\Microsoft.AspNetCore.Proxy\bin\Debug\netstandard2.0\Microsoft.AspNetCore.Proxy.deps.json
+C:\Source\Repos\Slipka\src\Microsoft.AspNetCore.Proxy\bin\Debug\netstandard2.0\Microsoft.AspNetCore.Proxy.dll
+C:\Source\Repos\Slipka\src\Microsoft.AspNetCore.Proxy\bin\Debug\netstandard2.0\Microsoft.AspNetCore.Proxy.pdb
+C:\Source\Repos\Slipka\src\Microsoft.AspNetCore.Proxy\bin\Debug\netstandard2.0\Microsoft.AspNetCore.Proxy.xml
+C:\Source\Repos\Slipka\src\Microsoft.AspNetCore.Proxy\obj\Debug\netstandard2.0\Microsoft.AspNetCore.Proxy.csproj.CoreCompileInputs.cache
+C:\Source\Repos\Slipka\src\Microsoft.AspNetCore.Proxy\obj\Debug\netstandard2.0\Microsoft.AspNetCore.Proxy.AssemblyInfoInputs.cache
+C:\Source\Repos\Slipka\src\Microsoft.AspNetCore.Proxy\obj\Debug\netstandard2.0\Microsoft.AspNetCore.Proxy.AssemblyInfo.cs
+C:\Source\Repos\Slipka\src\Microsoft.AspNetCore.Proxy\obj\Debug\netstandard2.0\Microsoft.AspNetCore.Proxy.dll
+C:\Source\Repos\Slipka\src\Microsoft.AspNetCore.Proxy\obj\Debug\netstandard2.0\Microsoft.AspNetCore.Proxy.xml
+C:\Source\Repos\Slipka\src\Microsoft.AspNetCore.Proxy\obj\Debug\netstandard2.0\Microsoft.AspNetCore.Proxy.pdb
+C:\Source\Repos\Slipka\src\Microsoft.AspNetCore.Proxy\obj\Debug\netstandard2.0\Microsoft.AspNetCore.Proxy.csprojResolveAssemblyReference.cache

@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.AspNetCore.Proxy</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.AspNetCore.Proxy.ProxyMiddleware">
+            <summary>
+            Proxy Middleware
+            </summary>
+        </member>
+        <member name="T:Microsoft.AspNetCore.Proxy.ProxyOptions">
+            <summary>
+            Proxy Options
+            </summary>
+        </member>
+        <member name="P:Microsoft.AspNetCore.Proxy.ProxyOptions.Scheme">
+            <summary>
+            Destination uri scheme
+            </summary>
+        </member>
+        <member name="P:Microsoft.AspNetCore.Proxy.ProxyOptions.Host">
+            <summary>
+            Destination uri host
+            </summary>
+        </member>
+        <member name="P:Microsoft.AspNetCore.Proxy.ProxyOptions.PathBase">
+            <summary>
+            Destination uri path base to which current Path will be appended
+            </summary>
+        </member>
+        <member name="P:Microsoft.AspNetCore.Proxy.ProxyOptions.AppendQuery">
+            <summary>
+            Query string parameters to append to each request
+            </summary>
+        </member>
+        <member name="T:Microsoft.AspNetCore.Proxy.SharedProxyOptions">
+            <summary>
+            Shared Proxy Options
+            </summary>
+        </member>
+        <member name="P:Microsoft.AspNetCore.Proxy.SharedProxyOptions.MessageHandler">
+            <summary>
+            Message handler used for http message forwarding.
+            </summary>
+        </member>
+        <member name="P:Microsoft.AspNetCore.Proxy.SharedProxyOptions.PrepareRequest">
+            <summary>
+            Allows to modify HttpRequestMessage before it is sent to the Message Handler.
+            </summary>
+        </member>
+        <member name="P:Microsoft.AspNetCore.Proxy.SharedProxyOptions.WebSocketKeepAliveInterval">
+            <summary>
+            Keep-alive interval for proxied Web Socket connections.
+            </summary>
+        </member>
+        <member name="P:Microsoft.AspNetCore.Proxy.SharedProxyOptions.WebSocketBufferSize">
+            <summary>
+            Internal send and receive buffers size for proxied Web Socket connections.
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.Builder.ProxyExtensions.RunProxy(Microsoft.AspNetCore.Builder.IApplicationBuilder,System.Uri)">
+            <summary>
+            Runs proxy forwarding requests to the server specified by base uri.
+            </summary>
+            <param name="app"></param>
+            <param name="baseUri">Destination base uri</param>
+        </member>
+        <member name="M:Microsoft.AspNetCore.Builder.ProxyExtensions.RunProxy(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+            <summary>
+            Runs proxy forwarding requests to the server specified by options.
+            </summary>
+            <param name="app"></param>
+        </member>
+        <member name="M:Microsoft.AspNetCore.Builder.ProxyExtensions.RunProxy(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Proxy.ProxyOptions)">
+            <summary>
+            Runs proxy forwarding requests to the server specified by options.
+            </summary>
+            <param name="app"></param>
+            <param name="options">Proxy options</param>
+        </member>
+        <member name="M:Microsoft.AspNetCore.Builder.ProxyExtensions.ProxyRequest(Microsoft.AspNetCore.Http.HttpContext,System.Uri)">
+            <summary>
+            Forwards current request to the specified destination uri.
+            </summary>
+            <param name="context"></param>
+            <param name="destinationUri">Destination Uri</param>
+        </member>
+    </members>
+</doc>
