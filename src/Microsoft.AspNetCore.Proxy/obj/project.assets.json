@@ -538,11 +538,11 @@
       "hideWarningsAndErrors": true
     },
     "restore": {
-      "projectUniqueName": "C:\\Source\\Repos\\Slipka\\src\\Microsoft.AspNetCore.Proxy\\Microsoft.AspNetCore.Proxy.csproj",
+      "projectUniqueName": "C:\\GitHub\\Slipka\\src\\Microsoft.AspNetCore.Proxy\\Microsoft.AspNetCore.Proxy.csproj",
       "projectName": "Microsoft.AspNetCore.Proxy",
-      "projectPath": "C:\\Source\\Repos\\Slipka\\src\\Microsoft.AspNetCore.Proxy\\Microsoft.AspNetCore.Proxy.csproj",
+      "projectPath": "C:\\GitHub\\Slipka\\src\\Microsoft.AspNetCore.Proxy\\Microsoft.AspNetCore.Proxy.csproj",
       "packagesPath": "C:\\Users\\live\\.nuget\\packages\\",
-      "outputPath": "C:\\Source\\Repos\\Slipka\\src\\Microsoft.AspNetCore.Proxy\\obj\\",
+      "outputPath": "C:\\GitHub\\Slipka\\src\\Microsoft.AspNetCore.Proxy\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

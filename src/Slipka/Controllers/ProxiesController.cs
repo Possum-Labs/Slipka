@@ -12,14 +12,16 @@ namespace Slipka.Controllers
     [Route("api/Proxies")]
     public class ProxiesController : Controller
     {
-        public ProxiesController(IOptions<ProxySettings> settings, IOptions<ProxyStore> store)
+        public ProxiesController(IOptions<ProxySettings> settings, ProxyStore store, IFileRepository fileRepository)
         {
             Settings = settings.Value;
-            Store = store.Value;
+            Store = store;
+            FileRepository = fileRepository;
         }
 
         private readonly ProxySettings Settings;
         private readonly ProxyStore Store;
+        private readonly IFileRepository FileRepository;
         Random rand = new Random();
 
         // GET: api/Proxies
@@ -28,44 +30,46 @@ namespace Slipka.Controllers
         {
             lock (Store)
             {
-                return Store.Proxies.Select(x => x.Session);
+                return Store.All.Select(x => x.Session);
             }
         }
 
         // GET: api/Proxies/5
-        [HttpGet("{id}", Name = "Get")]
-        public Session Get(string id)
+        [HttpGet("{id}")]
+        public Session GetById(string id)
         {
-            var guid = Guid.Parse(id);
             lock (Store)
             {
-                return Store.Proxies.First(x => x.Session.PublicId == guid).Session;
+                return Store[id].Session;
             }
         }
         
         // POST: api/Proxies
         [HttpPost]
-        public Session Post([FromBody]Session value)
+        public Session Post([FromBody] Session value)
         {
-            value.Id = new MongoDB.Bson.ObjectId();
-            value.PublicId = Guid.NewGuid();
-            value.Calls = new List<Call>();
+            var session = new Session {
+                TargetHost = value.TargetHost,
+                TargetPort = value.TargetPort,
+            };
+            session.InternalId = new MongoDB.Bson.ObjectId();
+            session.Calls = new List<Call>();
             lock (Store)
             {
-                value.ProxyPort = GetNewPort(value);
-                var proxy = new Proxy(value);
+                session.ProxyPort = GetNewPort(value);
+                var proxy = new Proxy(session, FileRepository);
                 proxy.Init();
-                Store.Proxies.Add(proxy);
+                Store.Add(proxy);
             }
 
-            return value;
+            return session;
 
     }
 
         private int GetNewPort(Session value)
         {
             int[] ports = Enumerable.Range(Settings.FirstPort, Settings.LastPort - Settings.FirstPort).ToArray();
-            var available = ports.Except(Store.Proxies.Select(x => x.Session.ProxyPort)).ToArray();
+            var available = ports.Except(Store.All.Select(x => x.Session.ProxyPort)).ToArray();
             return available.ElementAt(rand.Next(available.Count()));
         }
 
@@ -75,13 +79,19 @@ namespace Slipka.Controllers
         [HttpDelete("{id}")]
         public void Delete(string id)
         {
-            var guid = Guid.Parse(id);
             lock (Store)
             {
-                foreach( var p in Store.Proxies.Where(x => x.Session.PublicId == guid))
-                    p.Dispose();
-                Store.Proxies.RemoveAll(x => x.Session.PublicId == guid);
-            }
+                Store.Remove(id);
+             }
+        }
+
+        [HttpPut("{id}/record")]
+        public Session PutRecord(string id, [FromBody] Call call)
+        {
+            var session = 
+                Store[id].Session;
+            session.RecordedCalls.Add(call);
+            return session;
         }
     }
 }

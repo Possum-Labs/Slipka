@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v2.0",
-    "signature": "5b9d6366eeb88af9105d93fc5201e9f04bfab672"
+    "signature": "48371e4bd5a8fa29c0f651688f1165d169d245bc"
   },
   "compilationOptions": {
     "defines": [
@@ -27,7 +27,8 @@
           "Microsoft.AspNetCore.Proxy": "1.0.0",
           "Microsoft.NETCore.App": "2.0.0",
           "Microsoft.VisualStudio.Web.CodeGeneration.Design": "2.0.2",
-          "MongoDB.Driver": "2.5.0"
+          "MongoDB.Driver": "2.5.0",
+          "MongoDB.Driver.GridFS": "2.5.0"
         },
         "runtime": {
           "Slipka.dll": {}
@@ -2517,6 +2518,20 @@
         },
         "compile": {
           "lib/netstandard1.5/MongoDB.Driver.Core.dll": {}
+        }
+      },
+      "MongoDB.Driver.GridFS/2.5.0": {
+        "dependencies": {
+          "MongoDB.Bson": "2.5.0",
+          "MongoDB.Driver": "2.5.0",
+          "MongoDB.Driver.Core": "2.5.0",
+          "NETStandard.Library": "2.0.0"
+        },
+        "runtime": {
+          "lib/netstandard1.5/MongoDB.Driver.GridFS.dll": {}
+        },
+        "compile": {
+          "lib/netstandard1.5/MongoDB.Driver.GridFS.dll": {}
         }
       },
       "Newtonsoft.Json/10.0.1": {
@@ -5699,6 +5714,13 @@
       "sha512": "sha512-/JYwBTEoWZDHiSePk0AF775c0YkSGSsHTA2+hWt9/UOCkYV/QOFujAWDdpFzBMCDpmQewbLRR1knYj76YOxffA==",
       "path": "mongodb.driver.core/2.5.0",
       "hashPath": "mongodb.driver.core.2.5.0.nupkg.sha512"
+    },
+    "MongoDB.Driver.GridFS/2.5.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-9vhOWf9f+OgpBdY3sObS4nX0VEhFwSm04z96609GYa/K94+P22FyekCZD/ZxYNV7PFD6S/fCMVa0uUbFdPAWoA==",
+      "path": "mongodb.driver.gridfs/2.5.0",
+      "hashPath": "mongodb.driver.gridfs.2.5.0.nupkg.sha512"
     },
     "Newtonsoft.Json/10.0.1": {
       "type": "package",

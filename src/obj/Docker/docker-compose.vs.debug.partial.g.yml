@@ -7,7 +7,7 @@ services:
       - DOTNET_USE_POLLING_FILE_WATCHER=1
       - NUGET_FALLBACK_PACKAGES=/root/.nuget/fallbackpackages
     volumes:
-      - C:\Source\Repos\Slipka\src\slipka:/app
+      - C:\GitHub\Slipka\src\slipka:/app
       - C:\Users\live\vsdbg\vs2017u5:/remote_debugger:ro
       - C:\Users\live\.nuget\packages\:/root/.nuget/packages:ro
       - C:\Program Files\dotnet\sdk\NuGetFallbackFolder:/root/.nuget/fallbackpackages:ro

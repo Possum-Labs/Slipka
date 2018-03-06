@@ -23,7 +23,7 @@ services:
     - slipka
   slipka:
     build:
-      context: C:\Source\Repos\Slipka\src
+      context: C:\GitHub\Slipka\src
       dockerfile: slipka/Dockerfile
     depends_on:
     - db

@@ -1,1 +1,2 @@
 C:\Source\Repos\Slipka\src\obj\Debug\docker-compose.dcproj.CoreCompileInputs.cache
+C:\GitHub\Slipka\src\obj\Debug\docker-compose.dcproj.CoreCompileInputs.cache

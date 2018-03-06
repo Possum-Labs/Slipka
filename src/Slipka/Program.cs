@@ -20,7 +20,6 @@ namespace Slipka
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .ConfigureServices(s => { s.AddSingleton(new ProxyStore()); })
                 .UseStartup<Startup>()
                 .UseKestrel()
                 .UseUrls("http://*:4445")

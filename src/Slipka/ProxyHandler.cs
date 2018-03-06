@@ -7,6 +7,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,13 +15,14 @@ namespace Slipka
 {
     public class ProxyHandler : HttpMessageHandler
     {
-        public ProxyHandler(Session session)
+        public ProxyHandler(Session session, IFileRepository fileRepository)
         {
             From = new HostString("proxy",session.ProxyPort);
             Too = new HostString(session.TargetHost,session.TargetPort);
             handler = new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false };
             client = new HttpClient(handler);
             Session = session;
+            FileRepository = fileRepository;
         }
         private Session Session;
         private HostString From;
@@ -28,6 +30,7 @@ namespace Slipka
 
         private HttpClientHandler handler;
         private HttpClient client;
+        private IFileRepository FileRepository;
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
@@ -37,37 +40,63 @@ namespace Slipka
             foreach (var h in request.Headers)
                 msg.Headers.Add(h.Key, h.Value);
             var start = DateTime.Now;
-            var call = new Call { RequestUri = msg.RequestUri, Method = msg.Method.ToString() };
+            var call = new Call {
+                Uri = msg.RequestUri,
+                Method = msg.Method.ToString(),
+                Request = new Message
+                {
+                     Headers = msg.Headers.Select(x=> new KeyValuePair<string, List<string>>(x.Key, x.Value.ToList())).ToList(),
+                }
+            };
+            if(msg.Content != null)
+                call.Request.Headers.AddRange(
+                            msg.Content.Headers.Select(y => new KeyValuePair<string, List<string>>(y.Key, y.Value.ToList())));
+
             Session.Calls.Add(call);
             return client.SendAsync(msg, cancellationToken)
-                // TODO: make this optional
                 .ContinueWith(x=> 
                 {
-                    //    if (x.Result.Content.Headers.ContentType != null &&
-                    //        x.Result.Content.Headers.ContentType.MediaType != null &&
-                    //        x.Result.Content.Headers.ContentType.MediaType.ToLower().Contains("text/html"))
-                    //    {
-                    //        Stream responseStream = responseStream = x.Result.Content.ReadAsStreamAsync().Result;
-                    //        if (x.Result.Content.Headers.ContentEncoding.Any(y => y.ToLower().Contains("gzip")))
-                    //            responseStream = new GZipStream(responseStream, CompressionMode.Decompress);
-                    //        else if (x.Result.Content.Headers.ContentEncoding.Any(y => y.ToLower().Contains("deflate")))
-                    //            responseStream = new DeflateStream(responseStream, CompressionMode.Decompress);
-
-                    //        StreamReader Reader = new StreamReader(responseStream, Encoding.Default);
-
-                    //        string html = Reader.ReadToEnd();
-
-                    //        x.Result.Content = new StringContent(
-                    //            html.Replace($"{Too.Host}:{Too.Port}", $"{From.Host}:{From.Port}"),
-                    //            System.Text.Encoding.UTF8,
-                    //            "text/html");
-                    //    }
                     call.StatusCode = x.Result.StatusCode.ToString();
                     call.Duration = (DateTime.Now - start).TotalMilliseconds;
+                    call.Response = new Message
+                    {
+                        Headers = x.Result.Headers.Select(y => new KeyValuePair<string, List<string>>(y.Key, y.Value.ToList())).ToList()
+                    };
+
+                    if (x.Result.Content != null)
+                        call.Response.Headers.AddRange(
+                                    x.Result.Content.Headers.Select(y => new KeyValuePair<string, List<string>>(y.Key, y.Value.ToList())));
+
+                    if (Recording(call))
+                    {
+                        if(msg.Content!=null)
+                            call.Request.Content = FileRepository.Upload(msg.Content.ReadAsByteArrayAsync().Result, Session);
+                        if (x.Result.Content != null)
+                            call.Response.Content = FileRepository.Upload(x.Result.Content.ReadAsByteArrayAsync().Result, Session);
+                    }
 
                     Trace.WriteLine($"duration: {(DateTime.Now - start).TotalMilliseconds} ms code:{x.Result.StatusCode} url:{msg.RequestUri}");
                     return x.Result;
                 });
+        }
+
+        bool Recording(Call call)
+        {
+            return Matches(Session.RecordedCalls, call) != null;
+        }
+
+        Call Matches(List<Call> options, Call target)
+        {
+            return options.FirstOrDefault(
+                c =>
+                ((c.Uri == null) || (new Regex(c.Uri.AbsolutePath, RegexOptions.IgnoreCase).IsMatch(target.Uri.AbsolutePath))) &&
+                (c.Request == null || c.Request.Headers.Count == 0 || c.Request.Headers.Any(h =>
+                    target.Request.Headers.Any(t => t.Key == h.Key && t.Value.Intersect(h.Value).Any()))
+                ) &&
+                (c.Response == null || c.Response.Headers.Count == 0 || c.Response.Headers.Any(h =>
+                    target.Response.Headers.Any(t => t.Key == h.Key && t.Value.Intersect(h.Value).Any()))
+                )
+                );
         }
     }
 }

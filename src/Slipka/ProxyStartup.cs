@@ -16,13 +16,16 @@ namespace Slipka
 {
     public class ProxyStartup
     {
-        public ProxyStartup(IConfiguration configuration, Session session )
+        public ProxyStartup(IConfiguration configuration, Session session , IFileRepository fileRepository)
         {
             Configuration = configuration;
             Session = session;
             Target = new HostString(Session.TargetHost, Session.TargetPort);
-        }
+            FileRepository = fileRepository;
 
+    }
+
+    private IFileRepository FileRepository { get; }
         public IConfiguration Configuration { get; }
         public Session Session { get; }
         public HostString Target { get; }
@@ -30,7 +33,7 @@ namespace Slipka
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var handler = new ProxyHandler(Session);
+            var handler = new ProxyHandler(Session, FileRepository);
             services.AddMvc();
             services.AddProxy( options => 
             {

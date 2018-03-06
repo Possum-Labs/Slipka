@@ -11,13 +11,17 @@ namespace Slipka
     {
         public Session()
         {
-            PublicId = Guid.NewGuid();
+            Id = Guid.NewGuid().ToString();
+            Calls = new List<Call>();
+            Tags = new List<string>();
+            RecordedCalls = new List<Call>();
+            OverriddenCalls = new List<Call>();
         }
 
         [BsonId]
-        public ObjectId Id { get; set; }
+        public ObjectId InternalId { get; set; }
         [BsonElement("public_id")]
-        public Guid PublicId { get; set; }
+        public string Id { get; set; }
         [BsonElement("name")]
         public string Name { get; set; }
         [BsonElement("calls")]
@@ -28,5 +32,11 @@ namespace Slipka
         public string TargetHost { get; set; }
         [BsonElement("target_port")]
         public int TargetPort { get; set; }
+        [BsonElement]
+        public List<string> Tags { get; set; }
+        [BsonElement("recorded_calls")]
+        public List<Call> RecordedCalls { get; set; }
+        [BsonElement("overridden_calls")]
+        public List<Call> OverriddenCalls { get; set; }
     }
 }
