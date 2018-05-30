@@ -1,0 +1,3 @@
+docker images
+docker tag 71c2770bb881 bashamer/slipka:latest
+docker push bashamer/slipka

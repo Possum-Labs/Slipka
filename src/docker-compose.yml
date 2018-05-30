@@ -1,4 +1,4 @@
-version: '3'
+version: '3.4'
 
 services:
   db:
@@ -9,14 +9,14 @@ services:
     image: slipka
     build:
       context: .
-      dockerfile: slipka/Dockerfile
+      dockerfile: Slipka/Dockerfile
     depends_on: 
       - db
     links: 
       - "db:db"
     ports:
       - "4445:4445"
-      - "61010-61020:61010-61020"
+      - "61010-61120:61010-61120"
   hub:
     image: selenium/hub
     ports:

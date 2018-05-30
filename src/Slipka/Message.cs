@@ -17,6 +17,6 @@ namespace Slipka
         public ObjectId Content { get; set; }
         [BsonElement("headers")]
         public List<KeyValuePair<string, List<string>>> Headers { get; set; }
-        public bool IsRecorded => Content != ObjectId.Empty;
+        public bool HasContent => Content != ObjectId.Empty;
     }
 }

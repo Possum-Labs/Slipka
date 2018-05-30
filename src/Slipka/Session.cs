@@ -14,8 +14,8 @@ namespace Slipka
             Id = Guid.NewGuid().ToString();
             Calls = new List<Call>();
             Tags = new List<string>();
-            RecordedCalls = new List<Call>();
-            OverriddenCalls = new List<Call>();
+            RecordedCalls = new List<CallTemplate>();
+            InterceptedCalls = new List<CallTemplate>();
         }
 
         [BsonId]
@@ -35,8 +35,8 @@ namespace Slipka
         [BsonElement]
         public List<string> Tags { get; set; }
         [BsonElement("recorded_calls")]
-        public List<Call> RecordedCalls { get; set; }
+        public List<CallTemplate> RecordedCalls { get; set; }
         [BsonElement("overridden_calls")]
-        public List<Call> OverriddenCalls { get; set; }
+        public List<CallTemplate> InterceptedCalls { get; set; }
     }
 }

@@ -86,11 +86,20 @@ namespace Slipka.Controllers
         }
 
         [HttpPut("{id}/record")]
-        public Session PutRecord(string id, [FromBody] Call call)
+        public Session PutRecord(string id, [FromBody] CallTemplate call)
         {
             var session = 
                 Store[id].Session;
             session.RecordedCalls.Add(call);
+            return session;
+        }
+
+        [HttpPut("{id}/intercept")]
+        public Session PutIntercept(string id, [FromBody] CallTemplate call)
+        {
+            var session =
+                Store[id].Session;
+            session.InterceptedCalls.Add(call);
             return session;
         }
     }

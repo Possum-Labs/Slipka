@@ -1,0 +1,1 @@
+.\packages\SpecRun.Runner.1.7.2\tools\SpecRun.exe run ..\LegacyTest\Default.srprofile /filter:@debug

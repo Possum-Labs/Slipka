@@ -19,7 +19,7 @@ namespace Slipka
         [BsonElement("request")]
         public Message Request { get; set; }
         [BsonElement("status_code")]
-        public string StatusCode { get; set; }
+        public int? StatusCode { get; set; }
  
         //request
         [BsonElement("method")]
@@ -33,7 +33,10 @@ namespace Slipka
         
         //override
         [BsonElement("overridden")]
-        public bool Overridden { get; set; }
+        public bool Intercepted { get; set; }
+
+        [BsonElement("overridden")]
+        public bool Recorded { get; set; }
 
         [BsonElement("recieved")]
         public DateTime Recieved { get; set; }
