@@ -16,16 +16,18 @@ namespace Slipka
 {
     public class ProxyStartup
     {
-        public ProxyStartup(IConfiguration configuration, Session session , IFileRepository fileRepository)
+        public ProxyStartup(IConfiguration configuration, Session session, IFileRepository fileRepository, IMessageRepository messageRepository)
         {
             Configuration = configuration;
             Session = session;
             Target = new HostString(Session.TargetHost, Session.TargetPort);
             FileRepository = fileRepository;
+            MessageRepository = messageRepository;
 
-    }
+        }
 
-    private IFileRepository FileRepository { get; }
+        private IFileRepository FileRepository { get; }
+        private IMessageRepository MessageRepository { get; }
         public IConfiguration Configuration { get; }
         public Session Session { get; }
         public HostString Target { get; }
@@ -33,17 +35,17 @@ namespace Slipka
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var handler = new ProxyHandler(Session, FileRepository);
+            var handler = new ProxyHandler(Session, FileRepository, MessageRepository);
             services.AddMvc();
-            services.AddProxy( options => 
-            {
-                options.MessageHandler = handler;
-                options.PrepareRequest = (originalRequest, message) =>
-                {
-                    message.Headers.Add("X-Forwarded-Host", originalRequest.Host.Host);
-                    return Task.FromResult(0);
-                };
-            });
+            services.AddProxy(options =>
+           {
+               options.MessageHandler = handler;
+               options.PrepareRequest = (originalRequest, message) =>
+               {
+                   message.Headers.Add("X-Forwarded-Host", originalRequest.Host.Host);
+                   return Task.FromResult(0);
+               };
+           });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -62,7 +64,5 @@ namespace Slipka
 
             app.UseMvc();
         }
-
- 
     }
 }

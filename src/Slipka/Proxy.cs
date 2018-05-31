@@ -13,15 +13,17 @@ namespace Slipka
 {
     public class Proxy : IDisposable
     {
-        public Session Session;
-        public IWebHost Host;
-        public IFileRepository FileRepository;
-
-        public Proxy(Session value, IFileRepository fileRepository)
+        public Proxy(Session value, IFileRepository fileRepository, IMessageRepository messageRepository)
         {
             Session = value;
             FileRepository = fileRepository;
+            MessageRepository = messageRepository;
         }
+
+        public Session Session { get; }
+        private IWebHost Host { get; set; }
+        private IFileRepository FileRepository { get; }
+        private IMessageRepository MessageRepository { get; }
 
         public void Dispose()
         {
@@ -33,6 +35,7 @@ namespace Slipka
             Host = new WebHostBuilder()
               .ConfigureServices(s => { s.AddSingleton(Session); })
               .ConfigureServices(s => { s.AddSingleton(FileRepository); })
+              .ConfigureServices(s => { s.AddSingleton(MessageRepository); })
               .UseKestrel()
               .UseUrls($"http://*:{Session.ProxyPort}") 
               .UseStartup<ProxyStartup>()

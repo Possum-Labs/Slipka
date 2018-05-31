@@ -5,7 +5,7 @@
     <DockerTargetOS>Linux</DockerTargetOS>
     <ProjectGuid>812bb1b4-c353-4fcc-b3e3-659d974a4ff2</ProjectGuid>
     <DockerLaunchBrowser>True</DockerLaunchBrowser>
-    <DockerServiceUrl>http://localhost:{ServicePort}/api/proxies</DockerServiceUrl>
+    <DockerServiceUrl>http://localhost:{ServicePort}/graphql</DockerServiceUrl>
     <DockerServiceName>slipka</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>

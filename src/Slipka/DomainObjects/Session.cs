@@ -32,11 +32,16 @@ namespace Slipka
         public string TargetHost { get; set; }
         [BsonElement("target_port")]
         public int TargetPort { get; set; }
+
         [BsonElement]
         public List<string> Tags { get; set; }
+
         [BsonElement("recorded_calls")]
         public List<CallTemplate> RecordedCalls { get; set; }
         [BsonElement("overridden_calls")]
         public List<CallTemplate> InterceptedCalls { get; set; }
+        [BsonElement("decorations")]
+        public List<Header> Decorations { get; set; }
+
     }
 }

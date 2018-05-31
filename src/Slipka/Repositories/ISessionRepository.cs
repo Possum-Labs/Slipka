@@ -13,7 +13,10 @@ namespace Slipka
         Task AddSession(Session item);
 
         Task<bool> RemoveSession(string id);
-        
+
+        Task<bool> RemoveSessions();
+
+
         Task UpdateSession(Session item);
     }
 }

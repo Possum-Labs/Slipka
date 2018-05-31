@@ -11,12 +11,18 @@ namespace Slipka
     {
         public Message()
         {
-            Headers = new List<KeyValuePair<string, List<string>>>();
+            Headers = new List<Header>();
         }
+
+        public static Message Empty = new Message();
+
+        [BsonId]
+        public ObjectId InternalId { get; set; }
+
         [BsonElement("content")]
         public ObjectId Content { get; set; }
+
         [BsonElement("headers")]
-        public List<KeyValuePair<string, List<string>>> Headers { get; set; }
-        public bool HasContent => Content != ObjectId.Empty;
+        public List<Header> Headers { get; set; }
     }
 }

@@ -11,11 +11,11 @@ namespace Slipka
     {
         public MessageTemplate()
         {
-            Headers = new List<KeyValuePair<string, List<string>>>();
+            Headers = new List<Header>();
         }
         [BsonElement("content")]
         public string Content { get; set; }
         [BsonElement("headers")]
-        public List<KeyValuePair<string, List<string>>> Headers { get; set; }
+        public List<Header> Headers { get; set; }
     }
 }

@@ -23,12 +23,15 @@ namespace Slipka
             _context.Bucket.Delete(id);
         }
 
-        public byte[] Download(ObjectId id)
+        public Task<byte[]> Download(ObjectId id)
         {
-            return _context.Bucket.DownloadAsBytes(id);
+            if (id == ObjectId.Empty)
+                return Task.FromResult(new byte[0]);
+            else
+                return _context.Bucket.DownloadAsBytesAsync(id);
         }
 
-        public ObjectId Upload(byte[] source, Session session)
+        public Task<ObjectId> Upload(byte[] source, Session session)
         {
             var options = new GridFSUploadOptions
             {
@@ -38,7 +41,7 @@ namespace Slipka
                 }
             };
 
-            return _context.Bucket.UploadFromBytes("filename", source, options);
+            return _context.Bucket.UploadFromBytesAsync("filename", source, options);
         }
     }
 }

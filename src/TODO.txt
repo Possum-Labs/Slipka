@@ -1,10 +1,8 @@
-Get tests running
--get variable resolution steps
--get some basic unittests on those
-Add intercepted calls
--Test recording
--Test injection
-
 Others
+-Tagging
+-Background updating
+-Expiration
+-Environment Variables
+
 -Add basic UI
 -Add UI unittests

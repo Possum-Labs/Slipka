@@ -18,6 +18,7 @@ Scenario: Forwarding happy path
 	| var | Host        | Path | Method |
 	| C1  | P2.ProxyUri | test | GET    |
 	When the Call 'C1' is executed
-	Then 'C1' has the values
+	Then close the Proxy 'P1'
+	And 'C1' has the values
 	| Response Content | StatusCode |
 	| Hello World      | 200        |

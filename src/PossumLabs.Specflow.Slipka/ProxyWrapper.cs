@@ -1,4 +1,6 @@
-﻿using PossumLabs.Specflow.Core;
+﻿using GraphQL.Client;
+using GraphQL.Common.Request;
+using PossumLabs.Specflow.Core;
 using PossumLabs.Specflow.Slipka.ValueObjects;
 using RestSharp;
 using System;
@@ -8,47 +10,50 @@ using System.Text;
 
 namespace PossumLabs.Specflow.Slipka
 {
-    public class ProxyWrapper:IDomainObject
+    public class ProxyWrapper : IDomainObject
     {
-        public ProxyWrapper(Uri host, Uri destination):this(host)
+        public ProxyWrapper(Uri host, Uri destination) : this(host)
         {
             Open(destination);
         }
 
         public ProxyWrapper(Uri host)
         {
-            _administrationUri = host;
-            _administrationClient = new RestClient(host);
+            AdministrationUri = host;
+            AdministrationClient = new RestClient(host);
+            GraphQLClient = new GraphQLClient($"{host}graphql");
         }
 
-        private readonly Uri _administrationUri;
-        private  Uri _proxyUri;
-        private readonly RestClient _administrationClient;
-        private RestClient _proxyClient;
-        private SessionSummary _proxySession;
+        private Uri AdministrationUri { get; }
+        private RestClient AdministrationClient { get; }
+        private RestClient ProxyClient { get; set; }
+        private SessionSummary ProxySession { get; set; }
+        private GraphQLClient GraphQLClient { get;}
+
+        private Uri _proxyUri;
 
         public Uri ProxyUri { get => _proxyUri; }
 
         public void Open(Uri destination)
         {
-            _proxySession = new SessionSummary();
-            _proxySession.TargetHost = destination.Host;
-            _proxySession.TargetPort = destination.Port;
+            ProxySession = new SessionSummary();
+            ProxySession.TargetHost = destination.Host;
+            ProxySession.TargetPort = destination.Port;
 
             var request = new RestRequest("/api/proxies", Method.POST);
             request.RequestFormat = DataFormat.Json;
-            request.AddBody(_proxySession);
-            var response = _administrationClient.Execute<SessionSummary>(request);
+            request.AddBody(ProxySession);
+            var response = AdministrationClient.Execute<SessionSummary>(request);
             if (!response.IsSuccessful)
                 throw new Exception($"Was unable to open the proxy, error was {response.StatusCode} {response.StatusDescription}");
-            _proxySession = response.Data;
-            _proxyUri = new Uri($"http://{_administrationUri.Host}:{_proxySession.ProxyPort}");
-            _proxyClient = new RestClient(_proxyUri);
+            ProxySession = response.Data;
+            _proxyUri = new Uri($"http://{AdministrationUri.Host}:{ProxySession.ProxyPort}");
+            ProxyClient = new RestClient(_proxyUri);
         }
 
         public void LogsResponsesOfType(string type, string value)
         {
-            var request = new RestRequest($"/api/proxies/{_proxySession.Id}/record", Method.PUT);
+            var request = new RestRequest($"/api/proxies/{ProxySession.Id}/record", Method.PUT);
             var call = new Call
             {
                 Response = new Message
@@ -59,64 +64,84 @@ namespace PossumLabs.Specflow.Slipka
             call.Response.Headers.Add(new KeyValuePair<string, List<string>>(type, new List<string>() { value }));
             request.RequestFormat = DataFormat.Json;
             request.AddBody(call);
-            _administrationClient.Execute(request);
+            AdministrationClient.Execute(request);
         }
 
         public void LogsCallsTo(Uri uri)
         {
-            var request = new RestRequest($"/api/proxies/{_proxySession.Id}/record", Method.PUT);
+            var request = new RestRequest($"/api/proxies/{ProxySession.Id}/record", Method.PUT);
             var call = new Call
             {
                 Uri = uri
             };
             request.RequestFormat = DataFormat.Json;
             request.AddBody(call);
-            _administrationClient.Execute(request);
+            AdministrationClient.Execute(request);
         }
 
         public void RegisterTag(CallTemplate call, string tag)
         {
-            var request = new RestRequest($"/api/proxies/{_proxySession.Id}/tag/{tag}", Method.PUT);
+            var request = new RestRequest($"/api/proxies/{ProxySession.Id}/tag/{tag}", Method.PUT);
             request.RequestFormat = DataFormat.Json;
             request.AddBody(call);
-            _administrationClient.Execute(request);
+            AdministrationClient.Execute(request);
         }
 
         public void RegisterRecording(CallTemplate call)
         {
-            var request = new RestRequest($"/api/proxies/{_proxySession.Id}/record", Method.PUT);
+            var request = new RestRequest($"/api/proxies/{ProxySession.Id}/record", Method.PUT);
             request.RequestFormat = DataFormat.Json;
             request.AddBody(call);
-            _administrationClient.Execute(request);
+            AdministrationClient.Execute(request);
         }
 
         public void RegisterIntercept(CallTemplate call)
         {
-            var request = new RestRequest($"/api/proxies/{_proxySession.Id}/intercept", Method.PUT);
+            var request = new RestRequest($"/api/proxies/{ProxySession.Id}/intercept", Method.PUT);
             request.RequestFormat = DataFormat.Json;
             request.AddBody(call);
-            _administrationClient.Execute(request);
+            AdministrationClient.Execute(request);
         }
 
         public CallCollection GetRecordedCalls()
         {
-            var ret = new CallCollection();
-
-            var request = new RestRequest($"/api/proxies/{_proxySession.Id}", Method.GET);
-            request.RequestFormat = DataFormat.Json;
-            var results = _administrationClient.Execute<SessionSummary>(request);
-
-            ret.AddRange(results.Data.Calls.Where(c=>c.Recorded));
-
-            return ret;
+            var queury = new GraphQLRequest
+            {
+                Query = @"
+{
+    calls(sessionId: """ + ProxySession.Id + @""" recorded: true) {
+        duration
+        recorded
+        intercepted
+        statusCode
+        request {
+            content
+            headers {
+                key
+            }
+        }
+        response {
+            content
+            headers {
+                key
+            }
+        }
+    }
+}
+"
+            };
+            var task = GraphQLClient.PostAsync(queury);
+            var graphQLResponse = task.Result;
+            var calls = graphQLResponse.GetDataFieldAs<Call[]>("calls"); //data->hero is casted as Person
+            return new CallCollection(calls);
         }
 
         public void Close()
         {
-            if (_proxySession == null)
+            if (ProxySession == null)
                 return;
-            _administrationClient.Execute(new RestRequest(
-                $"/api/proxies/{_proxySession.Id}",
+            AdministrationClient.Execute(new RestRequest(
+                $"/api/proxies/{ProxySession.Id}",
                 Method.DELETE));
         }
 
@@ -124,23 +149,48 @@ namespace PossumLabs.Specflow.Slipka
         {
             var request = new RestRequest(path, method);
             request.RequestFormat = DataFormat.Json;
-            request.AddBody(_proxySession);
-            return _administrationClient.Execute(request);
+            request.AddBody(ProxySession);
+            return AdministrationClient.Execute(request);
         }
 
         public IRestResponse<T> Call<T>(string path, Method method) where T : new()
         {
             var request = new RestRequest(path, method);
             request.RequestFormat = DataFormat.Json;
-            request.AddBody(_proxySession);
-            return _administrationClient.Execute<T>(request);
+            request.AddBody(ProxySession);
+            return AdministrationClient.Execute<T>(request);
         }
 
         public List<Call> GetCalls()
         {
-            var response = _administrationClient.Execute<SessionSummary>(new RestRequest($"/api/sessions/{_proxySession.Id}"));
-            var session = response.Data;
-            return session.Calls;
+            var queury = new GraphQLRequest
+            {
+                Query = @"
+{
+    calls(sessionId: """ + ProxySession.Id + @""") {
+        duration
+        recorded
+        intercepted
+        statusCode
+        request {
+            content
+            headers {
+                key
+            }
+        }
+        response {
+            content
+            headers {
+                key
+            }
+        }
+    }
+}
+"
+            };
+            var graphQLResponse = GraphQLClient.PostAsync(queury).Result;
+            var calls = graphQLResponse.GetDataFieldAs<Call[]>("calls"); //data->hero is casted as Person
+            return calls.ToList();
         }
     }
 }

@@ -58,6 +58,15 @@ namespace Slipka
                 && actionResult.DeletedCount > 0;
         }
 
+        public async Task<bool> RemoveSessions()
+        {
+            DeleteResult actionResult
+                = await _context.Sessions.DeleteManyAsync(Builders<Session>.Filter.Empty);
+
+            return actionResult.IsAcknowledged
+                && actionResult.DeletedCount > 0;
+        }
+
         public async Task UpdateSession(Session item)
         {
             await _context.Sessions

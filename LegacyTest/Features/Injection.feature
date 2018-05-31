@@ -14,7 +14,8 @@ Scenario: Get Hello World
 	| var | Host        | Path | Method |
 	| C1  | P1.ProxyUri | test | GET    |
 	When the Call 'C1' is executed
-	Then 'C1' has the values
+	Then close the Proxy 'P1'
+	And 'C1' has the values
 	| Response Content | StatusCode |
 	| Hello World      | 200        |
 
@@ -38,7 +39,8 @@ Scenario Outline: Other methods
 	| var | Host        | Path | Method   |
 	| C1  | P1.ProxyUri | test | <Method> |
 	When the Call 'C1' is executed
-	Then 'C1' has the values
+	Then close the Proxy 'P1'
+	And 'C1' has the values
 	| Response Content | StatusCode |
 	| <Body>           | 200        |
 Examples: 
@@ -59,7 +61,8 @@ Scenario: Delay
 	| var | Host        | Path | Method |
 	| C1  | P1.ProxyUri | test | GET    |
 	When the Call 'C1' is executed
-	Then 'C1' has the values
+	Then close the Proxy 'P1'
+	And 'C1' has the values
 	|Duration |
 	|> 1000   |
 
@@ -69,7 +72,8 @@ Scenario: Reporting
 	| Host           | Path | Response Body | Status | method |
 	| PossumLabs.com | test | Hello World   | 200    | GET    |
 	And the GET call 'C1' to Host 'P1.ProxyHost' and Path 'test'
-	Then The Proxy 'P1' has the calues
+	Then close the Proxy 'P1'
+	And The Proxy 'P1' has the calues
 	| Calls |
 	| 1     |
 	And Proxy 'P1' Call '0' has the Values

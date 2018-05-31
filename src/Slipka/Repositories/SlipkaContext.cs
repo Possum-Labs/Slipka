@@ -10,15 +10,14 @@ namespace Slipka
 {
     public class SlipkaContext
     {
-        private readonly IMongoDatabase _database = null;
-        private readonly IGridFSBucket _bucket = null;
+        private readonly IMongoDatabase _database;
 
         public SlipkaContext(IOptions<MongoSettings> settings)
         {
             var client = new MongoClient(settings.Value.ConnectionString);
             _database = client.GetDatabase(settings.Value.Database);
 
-            _bucket = new GridFSBucket(_database, options: new GridFSBucketOptions
+            Bucket = new GridFSBucket(_database, options: new GridFSBucketOptions
             {
                 BucketName = "bodies",
                 ChunkSizeBytes = 1048576, // 1MB
@@ -33,12 +32,14 @@ namespace Slipka
             }
         }
 
-        public IGridFSBucket Bucket
+        public IMongoCollection<Message> Messages
         {
             get
             {
-                return _bucket;
+                return _database.GetCollection<Message>("Message");
             }
         }
+
+        public IGridFSBucket Bucket { get; }
     }
 }

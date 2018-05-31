@@ -8,8 +8,8 @@ namespace Slipka
 {
     public interface IFileRepository
     {
-        byte[] Download(ObjectId id);
-        ObjectId Upload(byte[] file, Session session);
+        Task<byte[]> Download(ObjectId id);
+        Task<ObjectId> Upload(byte[] file, Session session);
         void Delete(ObjectId id);
     }
 }

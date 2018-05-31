@@ -33,9 +33,13 @@ namespace LegacyTest
         public void GivenTheProxyRecordsTheCalls(ProxyWrapper proxy, List<CallTemplate> calls)
             => calls.ForEach(c => proxy.RegisterRecording(c));
 
-        [When(@"retrieving the recorded calls from Proxy '(.*)' as '(.*)'")]
-        public void WhenRetrievingTheRecordedCallsFromProxyAs(ProxyWrapper proxy, string name)
+        [Then(@"retrieving the recorded calls from Proxy '(.*)' as '(.*)'")]
+        public void ThenRetrievingTheRecordedCallsFromProxyAs(ProxyWrapper proxy, string name)
             => Interpeter.Add(name, proxy.GetRecordedCalls());
+
+        [Then(@"close the Proxy '(.*)'")]
+        public void ThenCloseTheProxy(ProxyWrapper proxy)
+            => proxy.Close();
 
 
     }

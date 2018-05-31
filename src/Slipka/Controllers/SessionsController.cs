@@ -12,65 +12,56 @@ namespace Slipka.Controllers
     [Route("api/Sessions")]
     public class SessionsController : Controller
     {
-        private readonly ISessionRepository _sessionRepository;
-        private readonly IFileRepository _fileRepository;
-
-        public SessionsController(ISessionRepository sessionRepository, IFileRepository fileRepository)
+        public SessionsController(ISessionRepository sessionRepository, IFileRepository fileRepository, IMessageRepository messageRepository)
         {
-            _sessionRepository = sessionRepository;
-            _fileRepository = fileRepository;
-        }
-        
-        [HttpGet]
-        public async Task<IEnumerable<Session>> Get()
-        {
-            return await _sessionRepository.GetAllSessions();
-        }
-        
-        [HttpGet("{id}")]
-        public async Task<Session> GetById(string id)
-        {
-            return await _sessionRepository.GetSession(id);
+            SessionRepository = sessionRepository;
+            FileRepository = fileRepository;
+            MessageRepository = messageRepository;
         }
 
-        [HttpGet("{id}/response/{number}")]
-        public async Task<ActionResult> GetResponse(string id, int number)
+        private ISessionRepository SessionRepository { get; }
+        private IFileRepository FileRepository { get; }
+        private IMessageRepository MessageRepository { get; }
+
+        //TODO: make this async
+        private Func<Task<Message>, ActionResult> SimulateMessage()
         {
-            return await _sessionRepository.GetSession(id).ContinueWith(session =>
+            return messageTaskResults =>
             {
-                var call = session.Result.Calls[number].Response;
-                var data = _fileRepository.Download(call.Content);
+                var message = messageTaskResults.Result;
+                var data = FileRepository.Download(message.Content).Result;
+                var contentTypes = message.Headers.Where(x => x.Key == "Content-Type");
 
-                var contentTypes = call.Headers.Where(x => x.Key == "Content-Type");
-
-                foreach (var h in call.Headers.Except(contentTypes))
-                    Response.Headers.Add(new KeyValuePair<string, StringValues>(h.Key, new StringValues(h.Value.ToArray())));
+                foreach (var h in message.Headers.Except(contentTypes))
+                    Response.Headers.Add(new KeyValuePair<string, StringValues>(h.Key, new StringValues(h.Values.ToArray())));
 
                 return File(data,
                     contentTypes.Any() ?
-                    contentTypes.First().Value.First() :
+                    contentTypes.First().Values.First() :
                     "application/x-binary") as ActionResult;
-            });
+            };
         }
 
         [HttpGet("{id}/request/{number}")]
         public async Task<ActionResult> GetRequest(string id, int number)
         {
-            return await _sessionRepository.GetSession(id).ContinueWith(session =>
+            return await SessionRepository.GetSession(id).ContinueWith(sessionTaskResults =>
             {
-                var call = session.Result.Calls[number].Request;
-                var data = _fileRepository.Download(call.Content);
+                var session = sessionTaskResults.Result;
+                var call = session.Calls[number];
+                return MessageRepository.GetMessage(call.RequestId).Result;
+            }).ContinueWith(SimulateMessage());
+        }
 
-                var contentTypes = call.Headers.Where(x => x.Key == "Content-Type");
-
-                foreach (var h in call.Headers.Except(contentTypes))
-                    Response.Headers.Add(new KeyValuePair<string, StringValues>(h.Key, new StringValues(h.Value.ToArray())));
-
-                return File(data,
-                    contentTypes.Any() ?
-                    contentTypes.First().Value.First() :
-                    "application/x-binary") as ActionResult;
-            });
+        [HttpGet("{id}/response/{number}")]
+        public async Task<ActionResult> GetResponse(string id, int number)
+        {
+            return await SessionRepository.GetSession(id).ContinueWith(sessionTaskResults =>
+            {
+                var session = sessionTaskResults.Result;
+                var call = session.Calls[number];
+                return MessageRepository.GetMessage(call.ResponseId).Result;
+            }).ContinueWith(SimulateMessage());
         }
     }
 }

@@ -21,8 +21,10 @@ Scenario: Recording happy path
 	| var | Host        | Path | Method |
 	| C1  | P2.ProxyUri | test | GET    |
 	When the Call 'C1' is executed
-	When retrieving the recorded calls from Proxy 'P2' as 'RC'
-	Then 'RC[0]' has the values
+	Then close the Proxy 'P1'
+	And close the Proxy 'P2'
+	And retrieving the recorded calls from Proxy 'P2' as 'RC'
+	And 'RC[0]' has the values
 	| Response Content | StatusCode |
 	| Hello World      | 200        |
 

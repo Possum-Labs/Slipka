@@ -12,38 +12,21 @@ namespace Slipka.Controllers
     [Route("api/Proxies")]
     public class ProxiesController : Controller
     {
-        public ProxiesController(IOptions<ProxySettings> settings, ProxyStore store, IFileRepository fileRepository)
+        public ProxiesController(IOptions<ProxySettings> settings, ProxyStore store, IFileRepository fileRepository, IMessageRepository messageRepository)
         {
             Settings = settings.Value;
             Store = store;
             FileRepository = fileRepository;
+            MessageRepository = messageRepository;
         }
 
-        private readonly ProxySettings Settings;
-        private readonly ProxyStore Store;
-        private readonly IFileRepository FileRepository;
-        Random rand = new Random();
+        private ProxySettings Settings { get; }
+        private ProxyStore Store { get; }
+        private IFileRepository FileRepository { get; }
+        private IMessageRepository MessageRepository { get; }
 
-        // GET: api/Proxies
-        [HttpGet]
-        public IEnumerable<Session> Get()
-        {
-            lock (Store)
-            {
-                return Store.All.Select(x => x.Session);
-            }
-        }
+        Random rand = new Random(Guid.NewGuid().GetHashCode());
 
-        // GET: api/Proxies/5
-        [HttpGet("{id}")]
-        public Session GetById(string id)
-        {
-            lock (Store)
-            {
-                return Store[id].Session;
-            }
-        }
-        
         // POST: api/Proxies
         [HttpPost]
         public Session Post([FromBody] Session value)
@@ -57,7 +40,7 @@ namespace Slipka.Controllers
             lock (Store)
             {
                 session.ProxyPort = GetNewPort(value);
-                var proxy = new Proxy(session, FileRepository);
+                var proxy = new Proxy(session, FileRepository, MessageRepository);
                 proxy.Init();
                 Store.Add(proxy);
             }
