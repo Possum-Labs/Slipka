@@ -19,7 +19,7 @@ namespace Slipka.Graphql
             Field(d => d.Recorded).Description("Wether the call is recorded.");
             Field(d => d.Recieved).Description("When the call was recieved.");
 
-            Field<MessageType>(
+            Field<StringGraphType>(
                 "uri",
                 description: "Uri.",
                 resolve: context => context.Source.Uri.ToString()
@@ -42,6 +42,11 @@ namespace Slipka.Graphql
             Field<ListGraphType<StringGraphType>>(
                 "tags",
                 resolve: context => context.Source.Tags
+            );
+
+            Field<StringGraphType>(
+                "path",
+                resolve: context => context.Source.Uri.AbsolutePath
             );
         }
     }

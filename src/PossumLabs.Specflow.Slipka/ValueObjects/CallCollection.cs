@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 namespace PossumLabs.Specflow.Slipka.ValueObjects
 {
 
-    public class CallCollection : List<Call>, IValueObject
+    public class CallCollection : List<CallRecord>, IValueObject
     {
-        public CallCollection(IEnumerable<Call> calls):base(calls)
+        public CallCollection(IEnumerable<CallRecord> calls):base(calls)
         {
 
         }

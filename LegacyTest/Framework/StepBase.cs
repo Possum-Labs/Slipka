@@ -1,4 +1,5 @@
 ﻿using PossumLabs.Specflow.Core;
+using PossumLabs.Specflow.Core.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,7 @@ namespace LegacyTest
         protected readonly FeatureContext FeatureContext;
 
         protected Interpeter Interpeter => ScenarioContext.Get<Interpeter>((typeof(Interpeter).FullName));
+        protected ActionExecutor Executor => ScenarioContext.Get<ActionExecutor>((typeof(ActionExecutor).FullName));
 
         internal void Register<T>(T item)
         {

@@ -1,8 +1,9 @@
 Others
--Tagging
--Background updating
+-Tamper
 -Expiration
 -Environment Variables
+-Auto cleanup
+-test expansion
 
 -Add basic UI
 -Add UI unittests

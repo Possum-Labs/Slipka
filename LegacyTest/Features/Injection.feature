@@ -7,7 +7,7 @@ Background:
 	| P1  | http://localhost:4445 | http://PossumLabs.com |
 
 Scenario: Get Hello World
-	Given the Proxy 'P1' intercepts the calls
+	Given the Proxy 'P1' injects the calls
 	| Uri   | Response Content | StatusCode | Method |
 	| /test | Hello World      | 200        | GET    |
 	And the Call
@@ -20,7 +20,7 @@ Scenario: Get Hello World
 	| Hello World      | 200        |
 
 Scenario: Error response
-	Given the Proxy 'P1' intercepts the calls
+	Given the Proxy 'P1' injects the calls
 	| Uri   | Response Content | StatusCode | Method |
 	| /test | my error         | 500        | GET    |
 	And the Call
@@ -32,7 +32,7 @@ Scenario: Error response
 	| my error         | 500        |
 
 Scenario Outline: Other methods
-	Given the Proxy 'P1' intercepts the calls
+	Given the Proxy 'P1' injects the calls
 	| Uri   | Response Content | StatusCode | Method   |
 	| /test | <Body>           | 200        | <Method> |
 	And the Call
@@ -42,19 +42,18 @@ Scenario Outline: Other methods
 	Then close the Proxy 'P1'
 	And 'C1' has the values
 	| Response Content | StatusCode |
-	| <Body>           | 200        |
+	| <ResponseContent>           | 200        |
 Examples: 
-| Method  | Body | Description                                                                |
-| GET     | null | Requests data from a specified resource                                    |
-| POST    | {}   | Submits data to be processed to a specified resource                       |
-#| HEAD    | null | Same as GET but returns only HTTP headers and no DomainObjectcument body   | #empty body
-| PUT     | {}   | Uploads a representation of the specified URI                              |
-| DELETE  | null | Deletes the specified resource                                             |
-| OPTIONS | null | Returns the HTTP methods that the server supports                          |
-| PATCH   | {}   | The HTTP PATCH request method applies partial modifications to a resource. |
+| Method  | Body | ResponseContent | Description                                                                |
+| GET     | null | null            | Requests data from a specified resource                                    |
+| POST    | {}   | "{}"            | Submits data to be processed to a specified resource                       |
+| PUT     | {}   | "{}"            | Uploads a representation of the specified URI                              |
+| DELETE  | null | null            | Deletes the specified resource                                             |
+| OPTIONS | null | null            | Returns the HTTP methods that the server supports                          |
+| PATCH   | {}   | "{}"            | The HTTP PATCH request method applies partial modifications to a resource. |
 
 Scenario: Delay
-	Given the Proxy 'P1' intercepts the calls
+	Given the Proxy 'P1' injects the calls
 	| Uri   | Response Content | StatusCode | Method | Duration |
 	| /test | Hello World      | 200        | GET    | 1000     |
 	And the Call
@@ -66,25 +65,51 @@ Scenario: Delay
 	|Duration |
 	|> 1000   |
 
-	@ignore
-Scenario: Reporting
-	Given the Proxy 'P1' intercepts the calls
-	| Host           | Path | Response Body | Status | method |
-	| PossumLabs.com | test | Hello World   | 200    | GET    |
-	And the GET call 'C1' to Host 'P1.ProxyHost' and Path 'test'
+
+Scenario: Make sure that we don't forward the original call
+	Given the Slipka Proxy
+	| var | Host                  | Destination |
+	| P2  | http://localhost:4445 | P1.ProxyUri |
+	Given the Proxy 'P2' injects the calls
+	| Uri   | Response Content | StatusCode | Method |
+	| /test | Hello World      | 200        | GET    |
+	And the Call
+	| var | Host        | Path | Method |
+	| C1  | P2.ProxyUri | test | GET    |
+	When the Call 'C1' is executed
 	Then close the Proxy 'P1'
-	And The Proxy 'P1' has the calues
-	| Calls |
-	| 1     |
-	And Proxy 'P1' Call '0' has the Values
-	| Overwritten | Path |
-	| true        | test |
-	
-	@ignore
-Scenario: Make sure that we DomainObjectn't forward the original call
+	And close the Proxy 'P2'
+	And retrieving the calls from Proxy 'P1' as 'RC' 
+	And 'RC' has the values
+	| Count |
+	| 0     |
 
-	@ignore
-Scenario: intercept by header
+Scenario: inject by header
 
-	@ignore
-Scenario: multi part DomainObjectwnlaod simulation
+Scenario: inject by method
+	Given the Proxy 'P1' injects the calls
+	| Response Content | StatusCode | Method |
+	| Hello World      | 200        | GET    |
+	And the Call
+	| var | Host        | Path | Method |
+	| C1  | P1.ProxyUri | test | GET    |
+	When the Call 'C1' is executed
+	Then close the Proxy 'P1'
+	And 'C1' has the values
+	| Response Content | StatusCode |
+	| Hello World      | 200        |
+
+Scenario: inject by regular expression in path
+	Given the Proxy 'P1' injects the calls
+	| Uri      | Response Content | StatusCode |
+	| /t[est]+ | Hello World      | 200        |
+	And the Call
+	| var | Host        | Path | Method |
+	| C1  | P1.ProxyUri | test | GET    |
+	When the Call 'C1' is executed
+	Then close the Proxy 'P1'
+	And 'C1' has the values
+	| Response Content | StatusCode |
+	| Hello World      | 200        |
+
+Scenario: inject by regular expression in header

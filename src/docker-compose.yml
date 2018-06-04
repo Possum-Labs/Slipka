@@ -16,7 +16,7 @@ services:
       - "db:db"
     ports:
       - "4445:4445"
-      - "61010-61120:61010-61120"
+      - "61710-61920:61710-61920"
   hub:
     image: selenium/hub
     ports:

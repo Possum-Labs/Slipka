@@ -37,29 +37,34 @@ namespace Slipka
         private IFileRepository FileRepository { get; }
         private IMessageRepository MessageRepository { get; }
 
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage incommingRequest, CancellationToken cancellationToken)
         {
-            HttpRequestMessage msg = new HttpRequestMessage();
-            foreach (var p in typeof(HttpRequestMessage).GetProperties().Where(x => x.CanWrite))
-                p.SetValue(msg, p.GetValue(request));
-            foreach (var h in request.Headers)
-                msg.Headers.Add(h.Key, h.Value);
-            var start = DateTime.Now;
+            HttpRequestMessage request = CreateForwardableRequest(incommingRequest);
             var call = new Call
             {
-                Uri = msg.RequestUri,
-                Method = msg.Method.ToString()
+                Uri = request.RequestUri,
+                Method = request.Method.ToString()
             };
 
-            Session.Calls.Add(call);
+            lock (Session.Calls)
+            {
+                Session.Calls.Add(call);
+                Session.Active = true;
+            }
 
-            var requestMessage = BuildMessage(msg.Headers, msg.Content);
+            var requestMessage = BuildMessage(request.Headers, request.Content);
 
             if (Intercepting(call, requestMessage))
             {
+                var responseTemplate = Matches(Session.InterceptedCalls, call, requestMessage, Message.Empty).First();
+
                 call.Intercepted = true;
-                var responseTemplate = Matches(Session.InterceptedCalls, call, requestMessage, Message.Empty);
+                if (int.TryParse(responseTemplate.StatusCode, out var code))
+                    call.StatusCode = code;
+                call.Duration = responseTemplate.Duration;
+
                 var response = new HttpResponseMessage(Enum.Parse<HttpStatusCode>(responseTemplate.StatusCode));
+
                 if (responseTemplate.Response != null)
                 {
                     if (responseTemplate.Response.Content != null)
@@ -71,35 +76,55 @@ namespace Slipka
                         foreach (var i in h.Value)
                             response.Headers.Add(h.Key, i);
                 }
-
-                //TOOD: there has to be a more elegant way to do this w/ tasks
-                var task = new Task<HttpResponseMessage>(() =>
-                {
-                    Thread.Sleep(responseTemplate.Duration ?? 1);
-                    return response;
-                });
-                task.Start();
-                return task;
+                Tag(call, requestMessage);
+                return Task.Delay(responseTemplate.Duration ?? 1).ContinueWith((result) => response);
             }
 
-            return Client.SendAsync(msg, cancellationToken)
+            Decorate(request);
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            return Client.SendAsync(request, cancellationToken)
                 .ContinueWith(responseTask =>
                 {
+                    stopwatch.Stop();
                     var response = responseTask.Result;
                     call.StatusCode = (int)response.StatusCode;
-                    call.Duration = (DateTime.Now - start).TotalMilliseconds;
+                    call.Duration = stopwatch.ElapsedMilliseconds;
                     var responseMessage = BuildMessage(response.Headers, response.Content);
                     if (Recording(call, requestMessage, responseMessage))
                     {
-                        Record(msg.Content, call, requestMessage, (id) => call.RequestId = id);
+                        Record(request.Content, call, requestMessage, (id) => call.RequestId = id);
                         Record(response.Content, call, responseMessage, (id) => call.ResponseId = id);
                         call.Recorded = true;
                     }
-
-                    Trace.WriteLine($"duration: {(DateTime.Now - start).TotalMilliseconds} ms code:{response.StatusCode} url:{msg.RequestUri}");
+                    Tag(call, requestMessage, responseMessage);
                     return response;
                 });
         }
+
+        private void Tag(Call call, Message requestMessage, Message responseMessage = null)
+        => Matches(Session.TaggedCalls, call, requestMessage, responseMessage ?? Message.Empty)
+            .ForEach(callTemplate => call.Tags = call.Tags.Union(callTemplate.Tags).ToList())
+            .ForEach(callTemplate =>
+            {
+                lock (Session.Tags)
+                {
+                    Session.Tags = Session.Tags.Union(callTemplate.Tags).ToList();
+                }
+            });
+
+        private static HttpRequestMessage CreateForwardableRequest(HttpRequestMessage incommingRequest)
+        {
+            HttpRequestMessage request = new HttpRequestMessage();
+            foreach (var p in typeof(HttpRequestMessage).GetProperties().Where(x => x.CanWrite))
+                p.SetValue(request, p.GetValue(incommingRequest));
+            foreach (var h in incommingRequest.Headers)
+                request.Headers.Add(h.Key, h.Value);
+            return request;
+        }
+
+        private void Decorate(HttpRequestMessage request)
+            => Session.Decorations.ForEach(h => h.Values.ForEach(v => request.Headers.Add(h.Key, v)));
 
         private void Record(HttpContent content, Call call, Message message, Action<ObjectId> record)
         {
@@ -137,16 +162,15 @@ namespace Slipka
                 .ContinueWith(task=> record(message.InternalId));
         }
 
-
         private bool Recording(Call call, Message request, Message response = null) 
-            => Matches(Session.RecordedCalls, call, request, response ?? Message.Empty) != null;
+            => Matches(Session.RecordedCalls, call, request, response ?? Message.Empty).Any();
 
         private bool Intercepting(Call call, Message request, Message response = null) 
-            => Matches(Session.InterceptedCalls, call, request, response ?? Message.Empty) != null;
+            => Matches(Session.InterceptedCalls, call, request, response ?? Message.Empty).Any();
 
-        private CallTemplate Matches(List<CallTemplate> options, Call target, Message request, Message response)
+        private IEnumerable<CallTemplate> Matches(List<CallTemplate> options, Call target, Message request, Message response)
         {
-            return options.FirstOrDefault(
+            return options.Where(
                 c =>
                 ((c.Uri == null) || (new Regex(c.Uri, RegexOptions.IgnoreCase).IsMatch(target.Uri.AbsolutePath))) &&
                 (c.Request == null || c.Request.Headers == null || c.Request.Headers.Count == 0 || c.Request.Headers.Any(h =>

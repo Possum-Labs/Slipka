@@ -4,24 +4,28 @@ using System.Collections.Generic;
 
 namespace PossumLabs.Specflow.Slipka
 {
-    public class CallTemplate : IDomainObject
+    public class CallRecord : IDomainObject
     {
-        public CallTemplate()
+        public CallRecord()
         {
-            Tags = new List<string>();
+
         }
 
         public Message Response { get; set; }
         public Message Request { get; set; }
         public string StatusCode { get; set; }
 
-        //request
         public string Method { get; set; }
-        public string Uri { get; set; }
+        public Uri Uri { get; set; }
+        public string Path { get; set; }
 
-        //metadata
-        public int? Duration { get; set; }
+        public double? Duration { get; set; }
+
+        public bool Intercepted { get; set; }
+        public bool Recorded { get; set; }
 
         public List<string> Tags { get; set; }
+
+        public DateTime Recieved { get; set; }
     }
 }

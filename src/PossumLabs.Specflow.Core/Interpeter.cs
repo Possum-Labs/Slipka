@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -155,6 +157,9 @@ namespace PossumLabs.Specflow.Core
 
             if (t == typeof(string))
                 return o.ToString();
+
+            if(sourceType == typeof(string) && ((string)o).IsValidJson())
+                return JsonConvert.DeserializeObject((string)o, t);
 
             throw new GherkinException($"Unable to convert from {sourceType} to {t}");
         }

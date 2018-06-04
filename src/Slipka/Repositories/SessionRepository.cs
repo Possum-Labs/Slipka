@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Slipka
 {
-    public class SessionRepository: ISessionRepository
+    public class SessionRepository : ISessionRepository
     {
         private readonly SlipkaContext _context = null;
 
@@ -69,10 +69,31 @@ namespace Slipka
 
         public async Task UpdateSession(Session item)
         {
+            Session copy;
+            lock (item.Calls)
+            {
+                copy = new Session
+                {
+                    Calls = item.Calls.ToList(),
+                    InternalId = item.InternalId,
+                    Id = item.Id,
+                    Name = item.Name,
+                    ProxyPort = item.ProxyPort,
+                    TargetHost = item.TargetHost,
+                    TargetPort = item.TargetPort,
+                    Tags = item.Tags.ToList(),
+                    RecordedCalls = item.RecordedCalls,
+                    InterceptedCalls = item.InterceptedCalls,
+                    TaggedCalls = item.TaggedCalls,
+                    Decorations = item.Decorations,
+                };
+            }
+
             await _context.Sessions
                 .ReplaceOneAsync(n => n.InternalId.Equals(item.InternalId)
-                        , item
+                        , copy
                         , new UpdateOptions { IsUpsert = true });
+
         }
 
     }

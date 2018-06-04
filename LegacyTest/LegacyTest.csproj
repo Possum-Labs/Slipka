@@ -84,6 +84,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Cross Proxy Reporting.feature</DependentUpon>
     </Compile>
+    <Compile Include="Features\Decoration.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Decoration.feature</DependentUpon>
+    </Compile>
     <Compile Include="Features\Forwarding.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -94,8 +99,16 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Injection.feature</DependentUpon>
     </Compile>
+    <Compile Include="Features\OrderViolations.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>OrderViolations.feature</DependentUpon>
+    </Compile>
+    <Compile Include="Framework\ErrorSteps.cs" />
     <Compile Include="Framework\ValidationSteps.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Steps\HeaderSteps.cs" />
+    <Compile Include="Steps\SessionSteps.cs" />
     <Compile Include="Steps\CallCollectionSteps.cs" />
     <Compile Include="Steps\CallTemplateSteps.cs" />
     <Compile Include="Steps\CallSteps.cs" />
@@ -118,6 +131,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Tagging.feature</DependentUpon>
     </Compile>
+    <Compile Include="Steps\WaitSteps.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -128,6 +142,10 @@
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Cross Proxy Reporting.feature.cs</LastGenOutput>
     </None>
+    <None Include="Features\Decoration.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>Decoration.feature.cs</LastGenOutput>
+    </None>
     <None Include="Features\Forwarding.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Forwarding.feature.cs</LastGenOutput>
@@ -135,6 +153,10 @@
     <None Include="Features\Injection.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Injection.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\OrderViolations.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>OrderViolations.feature.cs</LastGenOutput>
     </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>

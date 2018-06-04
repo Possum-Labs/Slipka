@@ -16,6 +16,8 @@ namespace Slipka
             Tags = new List<string>();
             RecordedCalls = new List<CallTemplate>();
             InterceptedCalls = new List<CallTemplate>();
+            TaggedCalls = new List<CallTemplate>();
+            Decorations = new List<Header>();
         }
 
         [BsonId]
@@ -40,8 +42,24 @@ namespace Slipka
         public List<CallTemplate> RecordedCalls { get; set; }
         [BsonElement("overridden_calls")]
         public List<CallTemplate> InterceptedCalls { get; set; }
+        [BsonElement("tagged_calls")]
+        public List<CallTemplate> TaggedCalls { get; set; }
         [BsonElement("decorations")]
         public List<Header> Decorations { get; set; }
 
+        [BsonIgnore]
+        public bool Active { get; set; }
+
+        public int State()
+        {
+            int state = 0;
+            lock(Calls)
+            {
+                state += Calls.Count(x=>x.RequestId != ObjectId.Empty);
+                state += Calls.Count(x => x.ResponseId != ObjectId.Empty);
+                state += Tags.Count();
+            }
+            return state;
+        }
     }
 }

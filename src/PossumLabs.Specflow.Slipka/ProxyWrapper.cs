@@ -58,13 +58,20 @@ namespace PossumLabs.Specflow.Slipka
             {
                 Response = new Message
                 {
-                    Headers = new List<KeyValuePair<string, List<string>>>()
+                    Headers = new List<Header>()
                 }
             };
-            call.Response.Headers.Add(new KeyValuePair<string, List<string>>(type, new List<string>() { value }));
+            call.Response.Headers.Add(new Header(type, new List<string>() { value }));
             request.RequestFormat = DataFormat.Json;
             request.AddBody(call);
             AdministrationClient.Execute(request);
+        }
+
+        private void Execute(RestRequest request)
+        {
+            var response = AdministrationClient.Execute(request);
+            if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                throw new InvalidOperationException(response.StatusCode.ToString());
         }
 
         public void LogsCallsTo(Uri uri)
@@ -76,15 +83,15 @@ namespace PossumLabs.Specflow.Slipka
             };
             request.RequestFormat = DataFormat.Json;
             request.AddBody(call);
-            AdministrationClient.Execute(request);
+            Execute(request);
         }
 
-        public void RegisterTag(CallTemplate call, string tag)
+        public void RegisterTag(CallTemplate call)
         {
-            var request = new RestRequest($"/api/proxies/{ProxySession.Id}/tag/{tag}", Method.PUT);
+            var request = new RestRequest($"/api/proxies/{ProxySession.Id}/tag", Method.PUT);
             request.RequestFormat = DataFormat.Json;
             request.AddBody(call);
-            AdministrationClient.Execute(request);
+            Execute(request);
         }
 
         public void RegisterRecording(CallTemplate call)
@@ -92,7 +99,7 @@ namespace PossumLabs.Specflow.Slipka
             var request = new RestRequest($"/api/proxies/{ProxySession.Id}/record", Method.PUT);
             request.RequestFormat = DataFormat.Json;
             request.AddBody(call);
-            AdministrationClient.Execute(request);
+            Execute(request);
         }
 
         public void RegisterIntercept(CallTemplate call)
@@ -100,20 +107,63 @@ namespace PossumLabs.Specflow.Slipka
             var request = new RestRequest($"/api/proxies/{ProxySession.Id}/intercept", Method.PUT);
             request.RequestFormat = DataFormat.Json;
             request.AddBody(call);
-            AdministrationClient.Execute(request);
+            Execute(request);
         }
 
-        public CallCollection GetRecordedCalls()
+        public void RegisterDecoration(Header header)
         {
+            var request = new RestRequest($"/api/proxies/{ProxySession.Id}/decorate", Method.PUT);
+            request.RequestFormat = DataFormat.Json;
+            request.AddBody(header);
+            Execute(request);
+        }
+
+        public Session GetSession()
+        {
+            var paramaters = $"sessionId: \"{ProxySession.Id}\"";
             var queury = new GraphQLRequest
             {
                 Query = @"
 {
-    calls(sessionId: """ + ProxySession.Id + @""" recorded: true) {
+    session("+ paramaters + @") {
+    id
+    name
+    targetPort
+    tags
+    calls {
+        recorded
+        response {
+            content
+            }
+        }
+    }
+}
+"
+            };
+            var task = GraphQLClient.PostAsync(queury);
+            var graphQLResponse = task.Result;
+            return graphQLResponse.GetDataFieldAs<Session>("session"); 
+        }
+
+        public CallCollection GetCalls(bool? recorded = null, string tag = null)
+        {
+            var paramaters = $"sessionId: \"{ProxySession.Id}\"";
+            if (recorded.HasValue)
+                paramaters += $" recorded: {recorded.ToString().ToLower()}";
+            if (tag != null)
+                paramaters += $" tag: \"{tag}\"";
+            var queury = new GraphQLRequest
+            {
+                Query = @"
+{
+    calls(" + paramaters + @") {
         duration
         recorded
         intercepted
         statusCode
+        path
+        uri
+        tags
         request {
             content
             headers {
@@ -132,7 +182,7 @@ namespace PossumLabs.Specflow.Slipka
             };
             var task = GraphQLClient.PostAsync(queury);
             var graphQLResponse = task.Result;
-            var calls = graphQLResponse.GetDataFieldAs<Call[]>("calls"); //data->hero is casted as Person
+            var calls = graphQLResponse.GetDataFieldAs<CallRecord[]>("calls");
             return new CallCollection(calls);
         }
 
@@ -159,38 +209,6 @@ namespace PossumLabs.Specflow.Slipka
             request.RequestFormat = DataFormat.Json;
             request.AddBody(ProxySession);
             return AdministrationClient.Execute<T>(request);
-        }
-
-        public List<Call> GetCalls()
-        {
-            var queury = new GraphQLRequest
-            {
-                Query = @"
-{
-    calls(sessionId: """ + ProxySession.Id + @""") {
-        duration
-        recorded
-        intercepted
-        statusCode
-        request {
-            content
-            headers {
-                key
-            }
-        }
-        response {
-            content
-            headers {
-                key
-            }
-        }
-    }
-}
-"
-            };
-            var graphQLResponse = GraphQLClient.PostAsync(queury).Result;
-            var calls = graphQLResponse.GetDataFieldAs<Call[]>("calls"); //data->hero is casted as Person
-            return calls.ToList();
         }
     }
 }

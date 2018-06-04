@@ -10,7 +10,7 @@ namespace Slipka
         public Header(string key, IEnumerable<string> value)
         {
             Key = key;
-            Values = value.ToList();
+            Values = value== null?new List<string>() : value.ToList();
         }
 
         public string Key { get; set; }

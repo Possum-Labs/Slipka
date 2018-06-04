@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using PossumLabs.Specflow.Core;
+using System.Collections.Generic;
 
 namespace PossumLabs.Specflow.Slipka
 {
-    public class Session
+    public class Session : IValueObject
     {
         public string Id { get; set; }
         public string Name { get; set; }

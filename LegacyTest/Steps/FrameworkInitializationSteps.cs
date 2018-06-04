@@ -18,6 +18,7 @@ namespace LegacyTest.Steps
         public void Setup()
         {
             base.Register(new PossumLabs.Specflow.Core.Interpeter());
+            base.Register(new PossumLabs.Specflow.Core.Exceptions.ActionExecutor());
         }
     }
 }

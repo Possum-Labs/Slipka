@@ -40,7 +40,7 @@ namespace LegacyTest.Steps
                 if (!string.IsNullOrWhiteSpace(c.Request.Content))
                     request.AddBody(c.Request.Content);
                 foreach (var h in c.Request.Headers)
-                    foreach (var v in h.Value)
+                    foreach (var v in h.Values)
                         request.AddHeader(h.Key, v);
             }
             stopWatch.Start();
@@ -51,7 +51,7 @@ namespace LegacyTest.Steps
             c.Response = new Message()
             {
                 Content = response.Content,
-                Headers = response.Headers.Select(h => new KeyValuePair<string, List<string>>(h.Name, new List<string>() { h.Value.ToString() })).ToList()
+                Headers = response.Headers.Select(h => new Header(h.Name, new List<string>() { h.Value.ToString() })).ToList()
             };
             c.Duration = stopWatch.ElapsedMilliseconds;
         }

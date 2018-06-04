@@ -1,5 +1,6 @@
 ﻿using PossumLabs.Specflow.Core;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using TechTalk.SpecFlow;
 
@@ -21,11 +22,19 @@ namespace LegacyTest.Framework
             Interpeter.Resolve(id);
 
         [StepArgumentTransformation]
-        public Validation[] Transform(Table table) => 
-            table.Rows.SelectMany(r=>
+        public IEnumerable<IEnumerable<Validation>> TransformForContains(Table table) => 
+            table.Rows.Select(r=>
                 table.Header
                     .Where(h=>!String.IsNullOrWhiteSpace(r[h]))
                     .Select(h=>ValidationFactory.Create(r[h],h)))
+            .ToArray();
+
+        [StepArgumentTransformation]
+        public IEnumerable<Validation> TransformForHas(Table table) =>
+            table.Rows.SelectMany(r =>
+                table.Header
+                    .Where(h => !String.IsNullOrWhiteSpace(r[h]))
+                    .Select(h => ValidationFactory.Create(r[h], h)))
             .ToArray();
 
         [StepArgumentTransformation]
@@ -33,22 +42,19 @@ namespace LegacyTest.Framework
             ValidationFactory.Create(Constructor);
 
         [Then(@"'(.*)' has the values")]
-        public void ThenTheCallHasTheValues(object o, Validation[] validations)
-            => Validate(o, validations);
+        public void ThenTheCallHasTheValues(object o, IEnumerable<Validation> validations)
+            => o.Validate(validations);
 
         [Then(@"'(.*)' has the value '(.*)'")]
-        public void ThenTheCallHasTheValue(object o, Validation validations)
-            => Validate(o, validations );
+        public void ThenTheCallHasTheValue(object o, Validation validation)
+            => o.Validate(validation);
 
-        private void Validate(object o, params Validation[] validations)
-        {
-            var failedVaidations = validations
-                .Select(x => x.Validate(o))
-                .Where(x => x != null)
-                .ToArray();
+        [Then(@"'(.*)' contains the values")]
+        public void ThenTheCallContainsTheValues(object o, IEnumerable<IEnumerable<Validation>> validations)
+            => o.Contains(validations);
 
-            if (failedVaidations.Any())
-                throw new AggregateException(failedVaidations.OrderBy(e=>e.Message.Length));
-        }
+        [Then(@"'(.*)' has the value '(.*)'")]
+        public void ThenTheCallContainsTheValue(object o, Validation validation)
+            => o.Contains(validation);
     }
 }

@@ -24,12 +24,5 @@ namespace PossumLabs.Specflow.Slipka
         public Uri Uri { get; set; }
 
         public double? Duration { get; set; }
-
-        public bool Overridden { get; set; }
-        public bool Recorded { get; set; }
-
-        public List<string> Tags { get; set; }
-
-        public DateTime Recieved { get; set; }
     }
 }

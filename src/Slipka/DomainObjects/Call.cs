@@ -12,6 +12,7 @@ namespace Slipka
         public Call()
         {
             Recieved = DateTime.UtcNow;
+            Tags = new List<string>();
         }
 
         [BsonElement("response")]

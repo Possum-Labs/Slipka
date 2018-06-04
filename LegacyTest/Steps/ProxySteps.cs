@@ -25,22 +25,43 @@ namespace LegacyTest
         public void GivenTheSlipkaProxyFor(Dictionary<string, ProxyWrapper> proxies)
             => proxies.Keys.ToList().ForEach(k=> Add(k, proxies[k]));
 
-        [Given(@"the Proxy '(.*)' intercepts the calls")]
-        public void GivenTheProxyInterceptsTheCalls(ProxyWrapper proxy, List<CallTemplate> calls)
-            => calls.ForEach(c=> proxy.RegisterIntercept(c));
+        [Given(@"the Proxy '(.*)' injects the calls")]
+        public void GivenTheProxyinjectsTheCalls(ProxyWrapper proxy, List<CallTemplate> calls)
+            => Executor.Execute(()=> calls.ForEach(c=> proxy.RegisterIntercept(c)));
 
         [Given(@"the Proxy '(.*)' records the calls")]
         public void GivenTheProxyRecordsTheCalls(ProxyWrapper proxy, List<CallTemplate> calls)
-            => calls.ForEach(c => proxy.RegisterRecording(c));
+            => Executor.Execute(() => calls.ForEach(c => proxy.RegisterRecording(c)));
 
-        [Then(@"retrieving the recorded calls from Proxy '(.*)' as '(.*)'")]
-        public void ThenRetrievingTheRecordedCallsFromProxyAs(ProxyWrapper proxy, string name)
-            => Interpeter.Add(name, proxy.GetRecordedCalls());
+        [Given(@"the Proxy '(.*)' tags the calls")]
+        public void GivenTheProxyTagsTheCalls(ProxyWrapper proxy, List<CallTemplate> calls)
+            => Executor.Execute(() => calls.ForEach(c => proxy.RegisterTag(c)));
+
+        [Given(@"the Proxy '(.*)' decorates with")]
+        public void GivenTheProxyDecoratesWith(ProxyWrapper proxy, List<Header> decorations)
+            => Executor.Execute(() => decorations.ForEach(d => proxy.RegisterDecoration(d)));
+
+
+        [Then(@"retrieving the (u?n?)recorded calls from Proxy '(.*)' as '(.*)'")]
+        public void ThenRetrievingTheRecordedCallsFromProxyAs(string un, ProxyWrapper proxy, string name)
+            => Interpeter.Add(name, proxy.GetCalls(recorded:un!="un"));
+
+        [Then(@"retrieving the tagged calls from Proxy '(.*)' with tag '(.*)' as '(.*)'")]
+        public void ThenRetrievingTheTaggedCallsFromProxyAs(ProxyWrapper proxy, string tag, string name)
+            => Interpeter.Add(name, proxy.GetCalls(tag:tag));
+
+        [Then(@"retrieving the calls from Proxy '(.*)' as '(.*)'")]
+        public void ThenRetrievingTheCallsFromProxyAs(ProxyWrapper proxy, string name)
+            => Interpeter.Add(name, proxy.GetCalls());
+
 
         [Then(@"close the Proxy '(.*)'")]
         public void ThenCloseTheProxy(ProxyWrapper proxy)
             => proxy.Close();
 
+        [Then(@"retrieving the Session from Proxy '(.*)' as '(.*)'")]
+        public void ThenRetrievingTheSessionFromProxyAs(ProxyWrapper proxy, string name)
+            => Interpeter.Add(name, proxy.GetSession());
 
     }
 }

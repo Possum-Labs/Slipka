@@ -5,13 +5,12 @@ Background:
 	| var | Host                  | Destination           |
 	| P1  | http://localhost:4445 | http://PossumLabs.com |
 
-	@debug
 Scenario: Recording happy path
 	Given the Slipka Proxy
 	| var | Host                  | Destination |
 	| P2  | http://localhost:4445 | P1.ProxyUri |
 
-	Given the Proxy 'P1' intercepts the calls
+	Given the Proxy 'P1' injects the calls
 	| Uri   | Response Content | StatusCode | Method |
 	| /test | Hello World      | 200        | GET    |
 	Given the Proxy 'P2' records the calls
@@ -23,6 +22,7 @@ Scenario: Recording happy path
 	When the Call 'C1' is executed
 	Then close the Proxy 'P1'
 	And close the Proxy 'P2'
+	And wait 1000 ms
 	And retrieving the recorded calls from Proxy 'P2' as 'RC'
 	And 'RC[0]' has the values
 	| Response Content | StatusCode |

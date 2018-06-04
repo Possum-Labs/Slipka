@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
 using System.Reflection;
+using Newtonsoft.Json;
 
 namespace PossumLabs.Specflow.Core
 {
@@ -43,7 +44,7 @@ namespace PossumLabs.Specflow.Core
                 if (MakePredicate(constructor).Invoke(o) != true)
                     return $" the value was '{o}' wich was not '{constructor}'";
                 return null;
-             });
+             }, constructor);
 
         private Interpeter Interpeter;
 
@@ -53,6 +54,9 @@ namespace PossumLabs.Specflow.Core
 
         // /regex/
         private Regex isRegex = new Regex(@"^/(.*)/$", RegexOptions.Compiled);
+
+        // /regex/
+        private Regex isJson = new Regex(@"^((?:\[.*\])|(?:{.*}))$", RegexOptions.Compiled);
 
         // 'litteral'
         // "litteral"
@@ -100,6 +104,8 @@ namespace PossumLabs.Specflow.Core
                 return ProcessPercentage(predicate);
             else if (isMoney.IsMatch(predicate))
                 return ProcessMoney(predicate);
+            else if (isJson.IsMatch(predicate))
+                return ProcessJson(predicate);
             else
                 return v => Interpeter.Convert<string>(v) == predicate;
         }
@@ -136,6 +142,9 @@ namespace PossumLabs.Specflow.Core
 
         public Predicate<object> ProcessRegex(string predicate)
             => v => new Regex(isRegex.Match(predicate).Groups[1].Value).IsMatch(Interpeter.Convert<string>(v));
+
+        public Predicate<object> ProcessJson(string predicate)
+            => v => v.HasAllPropertiesAndFieldsOf(predicate.FromJsonAsTypeOf(v));
 
         public Predicate<object> ProcessTest(string predicate)
         {
