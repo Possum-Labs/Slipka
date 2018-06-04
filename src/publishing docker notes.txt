@@ -1,3 +1,9 @@
+build in release
+
 docker images
 docker tag 71c2770bb881 bashamer/slipka:latest
 docker push bashamer/slipka
+
+
+make sure the thing can start
+test the container

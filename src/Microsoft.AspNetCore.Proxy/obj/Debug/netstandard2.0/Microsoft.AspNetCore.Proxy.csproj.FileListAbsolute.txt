@@ -19,4 +19,3 @@ C:\GitHub\Slipka\src\Microsoft.AspNetCore.Proxy\obj\Debug\netstandard2.0\Microso
 C:\GitHub\Slipka\src\Microsoft.AspNetCore.Proxy\obj\Debug\netstandard2.0\Microsoft.AspNetCore.Proxy.dll
 C:\GitHub\Slipka\src\Microsoft.AspNetCore.Proxy\obj\Debug\netstandard2.0\Microsoft.AspNetCore.Proxy.xml
 C:\GitHub\Slipka\src\Microsoft.AspNetCore.Proxy\obj\Debug\netstandard2.0\Microsoft.AspNetCore.Proxy.pdb
-C:\GitHub\Slipka\src\Microsoft.AspNetCore.Proxy\obj\Debug\netstandard2.0\Microsoft.AspNetCore.Proxy.csprojAssemblyReference.cache

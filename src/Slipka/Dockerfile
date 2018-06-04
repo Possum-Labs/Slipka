@@ -1,13 +1,15 @@
-FROM microsoft/aspnetcore:2.0 AS base
+FROM microsoft/dotnet:2.1-aspnetcore-runtime AS base
 WORKDIR /app
 EXPOSE 4445
 EXPOSE 61010-61020
 
-FROM microsoft/aspnetcore-build:2.0 AS build
+FROM microsoft/dotnet:2.1-sdk AS build
 WORKDIR /src
-COPY *.sln ./
+COPY Slipka.Docker.sln ./
+COPY docker-compose* ./
+COPY Microsoft.AspNetCore.Proxy/Microsoft.AspNetCore.Proxy.csproj Microsoft.AspNetCore.Proxy/
 COPY Slipka/Slipka.csproj Slipka/
-RUN dotnet restore
+RUN dotnet restore Slipka.Docker.sln
 COPY . .
 WORKDIR /src/Slipka
 RUN dotnet build -c Release -o /app
