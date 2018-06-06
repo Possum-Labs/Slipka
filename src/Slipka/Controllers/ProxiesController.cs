@@ -33,12 +33,17 @@ namespace Slipka.Controllers
 
         // POST: api/Proxies
         [HttpPost]
-        public Session Post([FromBody] Session value)
+        public ActionResult<Session> Post([FromBody] Session value)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var session = new Session
             {
                 TargetHost = value.TargetHost,
-                TargetPort = value.TargetPort,
+                TargetPort = value.TargetPort ?? 80,
                 TaggedCalls = value.TaggedCalls ?? new List<CallTemplate>(),
                 RecordedCalls = value.RecordedCalls ?? new List<CallTemplate>(),
                 InterceptedCalls = value.InterceptedCalls ?? new List<CallTemplate>(),
@@ -72,7 +77,7 @@ namespace Slipka.Controllers
         }
 
         [HttpPut("{id}/record")]
-        public IActionResult PutRecord(string id, [FromBody] CallTemplate call)
+        public ActionResult<Session> PutRecord(string id, [FromBody] CallTemplate call)
         {
             if (!SessionAvailableForModification(id, out var error, out Session session))
                 return error;
@@ -84,7 +89,7 @@ namespace Slipka.Controllers
         }
 
         [HttpPut("{id}/intercept")]
-        public IActionResult PutIntercept(string id, [FromBody] CallTemplate call)
+        public ActionResult<Session> PutIntercept(string id, [FromBody] CallTemplate call)
         {
             if (!SessionAvailableForModification(id, out var error, out Session session))
                 return error;
@@ -96,7 +101,7 @@ namespace Slipka.Controllers
         }
 
         [HttpPut("{id}/tag")]
-        public IActionResult PutTag(string id, [FromBody] CallTemplate call)
+        public ActionResult<Session> PutTag(string id, [FromBody] CallTemplate call)
         {
             if (!SessionAvailableForModification(id, out var error, out Session session))
                 return error;
@@ -108,7 +113,7 @@ namespace Slipka.Controllers
         }
 
         [HttpPut("{id}/decorate")]
-        public IActionResult PutDecorate(string id, [FromBody] Header header)
+        public ActionResult<Session> PutDecorate(string id, [FromBody] Header header)
         {
             if (!SessionAvailableForModification(id, out var error, out Session session))
                 return error;
@@ -119,7 +124,7 @@ namespace Slipka.Controllers
             return Ok(session);
         }
 
-        private bool SessionAvailableForModification(string id, out IActionResult error, out Session session)
+        private bool SessionAvailableForModification(string id, out ActionResult<Session> error, out Session session)
         {
             try
             {

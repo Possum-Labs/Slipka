@@ -1,7 +1,9 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,7 +21,7 @@ namespace Slipka
             TaggedCalls = new List<CallTemplate>();
             Decorations = new List<Header>();
         }
-
+        [JsonIgnore]
         [BsonId]
         public ObjectId InternalId { get; set; }
         [BsonElement("public_id")]
@@ -30,10 +32,11 @@ namespace Slipka
         public List<Call> Calls { get; set; }
         [BsonElement("proxy_port")]
         public int ProxyPort { get; set; }
+        [Required]
         [BsonElement("target_host")]
         public string TargetHost { get; set; }
         [BsonElement("target_port")]
-        public int TargetPort { get; set; }
+        public int? TargetPort { get; set; }
 
         [BsonElement]
         public List<string> Tags { get; set; }

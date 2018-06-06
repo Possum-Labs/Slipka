@@ -21,7 +21,7 @@ namespace Slipka
         public ProxyHandler(Session session, IFileRepository fileRepository, IMessageRepository messageRepository)
         {
             From = new HostString("proxy", session.ProxyPort);
-            Too = new HostString(session.TargetHost, session.TargetPort);
+            Too = new HostString(session.TargetHost, session.TargetPort.Value);
             Handler = new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false };
             Client = new HttpClient(Handler);
             Session = session;
@@ -153,7 +153,7 @@ namespace Slipka
             if(content!= null)
                 FileRepository.Upload(content, Session)
                     .ContinueWith(uploadTask=> {
-                        message.Content = uploadTask.Result;
+                        message.ContentId = uploadTask.Result;
                         MessageRepository.AddMessage(message)
                             .ContinueWith(messageTask => record(message.InternalId));
                     });

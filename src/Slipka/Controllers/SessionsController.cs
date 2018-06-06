@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using MongoDB.Bson;
 
 namespace Slipka.Controllers
 {
-    [Produces("application/json")]
     [Route("api/Sessions")]
     public class SessionsController : Controller
     {
@@ -23,45 +23,36 @@ namespace Slipka.Controllers
         private IFileRepository FileRepository { get; }
         private IMessageRepository MessageRepository { get; }
 
-        //TODO: make this async
-        private Func<Task<Message>, ActionResult> SimulateMessage()
+        private async Task<ActionResult> BuildResponseFromMessage(Message message)
         {
-            return messageTaskResults =>
-            {
-                var message = messageTaskResults.Result;
-                var data = FileRepository.Download(message.Content).Result;
-                var contentTypes = message.Headers.Where(x => x.Key == "Content-Type");
+            if(message == null)
+                return new StatusCodeResult((int)System.Net.HttpStatusCode.NotFound);
 
-                foreach (var h in message.Headers.Except(contentTypes))
-                    Response.Headers.Add(new KeyValuePair<string, StringValues>(h.Key, new StringValues(h.Values.ToArray())));
+            var data = await FileRepository.Download(message.ContentId);
+            var contentTypes = message.Headers.Where(x => x.Key == "Content-Type");
 
-                return File(data,
-                    contentTypes.Any() ?
-                    contentTypes.First().Values.First() :
-                    "application/x-binary") as ActionResult;
-            };
+            foreach (var h in message.Headers.Except(contentTypes))
+                Response.Headers.Add(new KeyValuePair<string, StringValues>(h.Key, new StringValues(h.Values.ToArray())));
+
+            return File(data,
+                contentTypes.Any() ?
+                contentTypes.First().Values.First() :
+                "application/x-binary");
         }
+
+        private async Task<Message> getMessageFromSession(Session session, int number, Func<Call, ObjectId> selector)
+            => await MessageRepository.GetMessage(selector(session.Calls[number]));
+
+        private async Task<ActionResult> SimulateMessage(string id, int number, Func<Call, ObjectId> selector)
+            => await BuildResponseFromMessage(await getMessageFromSession(await SessionRepository.GetSession(id), number, selector));
 
         [HttpGet("{id}/request/{number}")]
         public async Task<ActionResult> GetRequest(string id, int number)
-        {
-            return await SessionRepository.GetSession(id).ContinueWith(sessionTaskResults =>
-            {
-                var session = sessionTaskResults.Result;
-                var call = session.Calls[number];
-                return MessageRepository.GetMessage(call.RequestId).Result;
-            }).ContinueWith(SimulateMessage());
-        }
+            => await SimulateMessage(id, number, call => call.RequestId);
 
         [HttpGet("{id}/response/{number}")]
         public async Task<ActionResult> GetResponse(string id, int number)
-        {
-            return await SessionRepository.GetSession(id).ContinueWith(sessionTaskResults =>
-            {
-                var session = sessionTaskResults.Result;
-                var call = session.Calls[number];
-                return MessageRepository.GetMessage(call.ResponseId).Result;
-            }).ContinueWith(SimulateMessage());
-        }
+             => await SimulateMessage(id, number, call => call.ResponseId);
+       
     }
 }

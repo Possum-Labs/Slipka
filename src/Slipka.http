@@ -1,0 +1,42 @@
+@slipkaHost = http://192.168.1.36
+@slipkaAdminPort = 4445
+@sessionId = d4cf0b8e-e3a9-4b85-b932-deef8f282f94
+@proxyPort = 61739
+
+###
+
+POST {{slipkaHost}}:{{slipkaAdminPort}}/api/proxies
+content-type: application/json
+
+{
+        "targetHost":"google.com",
+        "targetPort" : "80"
+}
+
+####
+
+PUT {{slipkaHost}}:{{slipkaAdminPort}}/api/proxies/{{sessionId}}/decorate
+content-type: application/json
+
+{
+        "key":"test-name",
+        "values" : ["Hello World"]
+}
+
+###
+
+GET http://google.com
+
+###
+
+GET {{slipkaHost}}:{{{{proxyPort}}}}
+
+
+###
+
+DELETE {{slipkaHost}}:{{slipkaAdminPort}}/api/proxies/{{sessionId}}
+
+
+###
+
+GET {{slipkaHost}}:{{slipkaAdminPort}}/api/sessions/85730f46-56df-4cfd-b02e-0a87d2500022/response/208

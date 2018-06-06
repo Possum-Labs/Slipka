@@ -1,7 +1,7 @@
 build in release
 
 docker images
-docker tag 71c2770bb881 bashamer/slipka:latest
+docker tag 3c7199e38e57 bashamer/slipka:latest
 docker push bashamer/slipka
 
 

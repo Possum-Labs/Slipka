@@ -23,7 +23,12 @@ namespace Slipka.Graphql
 
             Field(d => d.ProxyPort, nullable: true).Description("The port the proxy is exposed on while active.");
             Field(d => d.TargetHost).Description("The host that we forward to.");
-            Field(d => d.TargetPort).Description("The host port that we forward to.");
+
+            Field<IntGraphType>(
+               "targetPort",
+               resolve: context => context.Source.TargetPort.Value, 
+               description: "The host port that we forward to."
+           );
 
             Field<ListGraphType<StringGraphType>>(
                 "tags",

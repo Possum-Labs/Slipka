@@ -1,4 +1,5 @@
 ﻿using LegacyTest.Steps;
+using PossumLabs.Specflow.Core.Files;
 using PossumLabs.Specflow.Slipka;
 using System;
 using System.Collections.Generic;
@@ -62,6 +63,10 @@ namespace LegacyTest
         [Then(@"retrieving the Session from Proxy '(.*)' as '(.*)'")]
         public void ThenRetrievingTheSessionFromProxyAs(ProxyWrapper proxy, string name)
             => Interpeter.Add(name, proxy.GetSession());
+
+        [Then(@"retrieving the response of call '(.*)' for Proxy '(.*)' as File '(.*)'")]
+        public void ThenRetrievingTheResponseOfCallAsFile(int number, ProxyWrapper proxy, string name)
+            => Interpeter.Add(name, (IFile) new InMemoryFile(proxy.DownloadResponse(number)));
 
     }
 }

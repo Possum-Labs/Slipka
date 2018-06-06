@@ -16,7 +16,7 @@ namespace Slipka.Graphql
             Field<StringGraphType>(
                 "content",
                 resolve: context => 
-                    repository.Download(context.Source.Content)
+                    repository.Download(context.Source.ContentId)
                         .ContinueWith(task => System.Text.Encoding.UTF8.GetString(task.Result))
             );
 

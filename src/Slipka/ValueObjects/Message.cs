@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +17,12 @@ namespace Slipka
 
         public static Message Empty = new Message();
 
+        [JsonIgnore]
         [BsonId]
         public ObjectId InternalId { get; set; }
 
         [BsonElement("content")]
-        public ObjectId Content { get; set; }
+        public ObjectId ContentId { get; set; }
 
         [BsonElement("headers")]
         public List<Header> Headers { get; set; }

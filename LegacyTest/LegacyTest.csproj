@@ -102,6 +102,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>OrderViolations.feature</DependentUpon>
     </Compile>
+    <Compile Include="Features\Simulate.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Simulate.feature</DependentUpon>
+    </Compile>
     <Compile Include="Framework\ErrorSteps.cs" />
     <Compile Include="Framework\ValidationSteps.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -129,6 +134,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Tagging.feature</DependentUpon>
     </Compile>
+    <Compile Include="Framework\FileSteps.cs" />
     <Compile Include="Steps\WaitSteps.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -155,6 +161,10 @@
     <None Include="Features\OrderViolations.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>OrderViolations.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\Simulate.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>Simulate.feature.cs</LastGenOutput>
     </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>

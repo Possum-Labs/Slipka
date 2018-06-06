@@ -20,7 +20,7 @@ namespace Slipka
         {
             Configuration = configuration;
             Session = session;
-            Target = new HostString(Session.TargetHost, Session.TargetPort);
+            Target = new HostString(Session.TargetHost, Session.TargetPort.Value);
             FileRepository = fileRepository;
             MessageRepository = messageRepository;
 

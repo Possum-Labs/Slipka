@@ -210,5 +210,11 @@ namespace PossumLabs.Specflow.Slipka
             request.AddBody(ProxySession);
             return AdministrationClient.Execute<T>(request);
         }
+
+        public byte[] DownloadRequest(int number)
+            => AdministrationClient.DownloadData(new RestRequest($"/api/sessions/{ProxySession.Id}/request/{number}"));
+
+        public byte[] DownloadResponse(int number)
+            => AdministrationClient.DownloadData(new RestRequest($"/api/sessions/{ProxySession.Id}/response/{number}"));
     }
 }
