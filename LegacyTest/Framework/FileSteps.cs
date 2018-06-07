@@ -24,7 +24,11 @@ namespace LegacyTest.Steps
                 var r = new StreamReader(s);
                 var fileContent = r.ReadToEnd();
                 if (content != fileContent)
-                    throw new Exception("Notthesame");
+                    throw new Exception(
+                        $"The File has content is different than the content provided; \n"+
+                        $"The File has size: {fileContent.Length} vs provided : {content.Length} \n" +
+                        $">>>File content: {fileContent} \n" +
+                        $">>>Provided content: {content}");
             }
         }
 

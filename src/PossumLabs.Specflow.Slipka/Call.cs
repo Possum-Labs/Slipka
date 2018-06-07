@@ -8,12 +8,16 @@ namespace PossumLabs.Specflow.Slipka
     {
         public Call()
         {
-
+            Request = new Message();
+            Response = new Message();
         }
 
         public Call(string Host, string Path)
         {
-            Uri = new Uri($"{Host}/{Path}");
+            if(Host.EndsWith("/"))
+                Uri = new Uri($"{Host}{Path}");
+            else
+                Uri = new Uri($"{Host}/{Path}");
         }
 
         public Message Response { get; set; }

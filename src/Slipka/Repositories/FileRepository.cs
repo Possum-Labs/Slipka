@@ -23,12 +23,12 @@ namespace Slipka
             _context.Bucket.Delete(id);
         }
 
-        public Task<byte[]> Download(ObjectId id)
+        public async Task<byte[]> Download(ObjectId id)
         {
             if (id == ObjectId.Empty)
-                return Task.FromResult(new byte[0]);
+                return new byte[0];
             else
-                return _context.Bucket.DownloadAsBytesAsync(id);
+                return await _context.Bucket.DownloadAsBytesAsync(id);
         }
 
         public Task<ObjectId> Upload(byte[] source, Session session)

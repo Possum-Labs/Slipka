@@ -37,9 +37,11 @@ namespace Slipka
         private IFileRepository FileRepository { get; }
         private IMessageRepository MessageRepository { get; }
 
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage incommingRequest, CancellationToken cancellationToken)
+        public event EventHandler<SessionEventArgs> ImportantDataAddedEvent;
+
+        protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage incommingRequest, CancellationToken cancellationToken)
         {
-            HttpRequestMessage request = CreateForwardableRequest(incommingRequest);
+            HttpRequestMessage request = await CreateForwardableRequest(incommingRequest);
             var call = new Call
             {
                 Uri = request.RequestUri,
@@ -77,13 +79,13 @@ namespace Slipka
                             response.Headers.Add(h.Key, i);
                 }
                 Tag(call, requestMessage);
-                return Task.Delay(responseTemplate.Duration ?? 1).ContinueWith((result) => response);
+                return await Task.Delay(responseTemplate.Duration ?? 1).ContinueWith((result) => response);
             }
 
             Decorate(request);
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-            return Client.SendAsync(request, cancellationToken)
+            return await Client.SendAsync(request, cancellationToken)
                 .ContinueWith(responseTask =>
                 {
                     stopwatch.Stop();
@@ -103,23 +105,47 @@ namespace Slipka
         }
 
         private void Tag(Call call, Message requestMessage, Message responseMessage = null)
-        => Matches(Session.TaggedCalls, call, requestMessage, responseMessage ?? Message.Empty)
-            .ForEach(callTemplate => call.Tags = call.Tags.Union(callTemplate.Tags).ToList())
-            .ForEach(callTemplate =>
-            {
-                lock (Session.Tags)
-                {
-                    Session.Tags = Session.Tags.Union(callTemplate.Tags).ToList();
-                }
-            });
+        {
+            var tags = Matches(Session.TaggedCalls, call, requestMessage, responseMessage ?? Message.Empty);
+            if (tags.None())
+                return;
+            tags.ForEach(callTemplate => call.Tags = call.Tags.Union(callTemplate.Tags).ToList());
 
-        private static HttpRequestMessage CreateForwardableRequest(HttpRequestMessage incommingRequest)
+            lock (Session.Tags)
+            {
+                Session.Tags = Session.Tags.Union(call.Tags).ToList();
+            }
+              
+            RaiseImportantDataAddedEvent();
+        }
+
+        private async Task<HttpRequestMessage> CreateForwardableRequest(HttpRequestMessage incommingRequest)
         {
             HttpRequestMessage request = new HttpRequestMessage();
-            foreach (var p in typeof(HttpRequestMessage).GetProperties().Where(x => x.CanWrite))
-                p.SetValue(request, p.GetValue(incommingRequest));
+ 
             foreach (var h in incommingRequest.Headers)
                 request.Headers.Add(h.Key, h.Value);
+
+            if (incommingRequest.Content != null)
+            {
+                var ms = new MemoryStream();
+                var text = await incommingRequest.Content.ReadAsStringAsync();
+                await incommingRequest.Content.CopyToAsync(ms).ConfigureAwait(false);
+                ms.Position = 0;
+                request.Content = new StreamContent(ms);
+
+                if (incommingRequest.Content.Headers != null)
+                    foreach (var h in incommingRequest.Content.Headers)
+                        request.Content.Headers.Add(h.Key, h.Value);
+            }
+
+            request.Version = incommingRequest.Version;
+            request.Method = incommingRequest.Method;
+            request.RequestUri = incommingRequest.RequestUri;
+
+            foreach (KeyValuePair<string, object> prop in incommingRequest.Properties)
+                request.Properties.Add(prop);
+
             return request;
         }
 
@@ -148,6 +174,9 @@ namespace Slipka
             return message;
         }
 
+        protected void RaiseImportantDataAddedEvent()
+            => ImportantDataAddedEvent(this, new SessionEventArgs(Session));
+
         private void SaveMessage(Message message, Action<ObjectId> record, byte[] content = null)
         {
             if(content!= null)
@@ -155,7 +184,11 @@ namespace Slipka
                     .ContinueWith(uploadTask=> {
                         message.ContentId = uploadTask.Result;
                         MessageRepository.AddMessage(message)
-                            .ContinueWith(messageTask => record(message.InternalId));
+                            .ContinueWith(messageTask =>
+                            {
+                                record(message.InternalId);
+                                RaiseImportantDataAddedEvent();
+                            });
                     });
             else
             MessageRepository.AddMessage(message)

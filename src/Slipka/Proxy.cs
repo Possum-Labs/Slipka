@@ -13,17 +13,19 @@ namespace Slipka
 {
     public class Proxy : IDisposable
     {
-        public Proxy(Session value, IFileRepository fileRepository, IMessageRepository messageRepository)
+        public Proxy(Session value, IFileRepository fileRepository, IMessageRepository messageRepository, EventHandler<SessionEventArgs> saveSession)
         {
             Session = value;
             FileRepository = fileRepository;
             MessageRepository = messageRepository;
+            SaveSession = saveSession;
         }
 
         public Session Session { get; }
         private IWebHost Host { get; set; }
         private IFileRepository FileRepository { get; }
         private IMessageRepository MessageRepository { get; }
+        private EventHandler<SessionEventArgs> SaveSession { get; }
 
         public void Dispose()
         {
@@ -36,6 +38,7 @@ namespace Slipka
               .ConfigureServices(s => { s.AddSingleton(Session); })
               .ConfigureServices(s => { s.AddSingleton(FileRepository); })
               .ConfigureServices(s => { s.AddSingleton(MessageRepository); })
+              .ConfigureServices(s=> { s.AddSingleton(SaveSession); })
               .UseKestrel()
               .UseUrls($"http://*:{Session.ProxyPort}") 
               .UseStartup<ProxyStartup>()

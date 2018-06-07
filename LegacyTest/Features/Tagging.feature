@@ -7,12 +7,12 @@ Background:
 
 Scenario: Tagging happy path
 	Given the Proxy 'P1' injects the calls
-	| Uri    | Response Content | StatusCode | Method |
-	| /test  | Hello World      | 200        | GET    |
-	| /other | Hello World      | 200        | GET    |
+	| Uri   | Response Content | StatusCode | Method |
+	| test  | Hello World      | 200        | GET    |
+	| other | Hello World      | 200        | GET    |
 	Given the Proxy 'P1' tags the calls
-	| Uri   | Tags     |
-	| /test | ['Test'] |
+	| Uri  | Tags     |
+	| test | ['Test'] |
 	And the Call
 	| var | Host        | Path  | Method |
 	| C1  | P1.ProxyUri | test  | GET    |

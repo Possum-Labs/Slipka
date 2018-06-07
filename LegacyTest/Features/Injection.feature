@@ -50,7 +50,6 @@ Examples:
 | PUT     | {}   | "{}"            | Uploads a representation of the specified URI                              |
 | DELETE  | null | null            | Deletes the specified resource                                             |
 | OPTIONS | null | null            | Returns the HTTP methods that the server supports                          |
-| PATCH   | {}   | "{}"            | The HTTP PATCH request method applies partial modifications to a resource. |
 
 Scenario: Delay
 	Given the Proxy 'P1' injects the calls

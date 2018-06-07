@@ -16,16 +16,23 @@ namespace Slipka
 {
     public class ProxyStartup
     {
-        public ProxyStartup(IConfiguration configuration, Session session, IFileRepository fileRepository, IMessageRepository messageRepository)
+        public ProxyStartup(
+            IConfiguration configuration,
+            Session session,
+            IFileRepository fileRepository,
+            IMessageRepository messageRepository,
+            EventHandler<SessionEventArgs> sessionUpdate
+            )
         {
             Configuration = configuration;
             Session = session;
             Target = new HostString(Session.TargetHost, Session.TargetPort.Value);
             FileRepository = fileRepository;
             MessageRepository = messageRepository;
-
+            SessionUpdate = sessionUpdate;
         }
 
+        private EventHandler<SessionEventArgs> SessionUpdate { get;}
         private IFileRepository FileRepository { get; }
         private IMessageRepository MessageRepository { get; }
         public IConfiguration Configuration { get; }
@@ -36,6 +43,7 @@ namespace Slipka
         public void ConfigureServices(IServiceCollection services)
         {
             var handler = new ProxyHandler(Session, FileRepository, MessageRepository);
+            handler.ImportantDataAddedEvent += SessionUpdate;
             services.AddMvc();
             services.AddProxy(options =>
            {

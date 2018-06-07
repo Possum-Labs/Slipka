@@ -72,5 +72,19 @@ namespace PossumLabs.Specflow.Core
             throw new GherkinException("The referenced variable is not enumerable.");
         }
 
+        public static T ParseAsEnum<T>(this string input)
+        {
+            if (input == null)
+                throw new Exception($"null cannot be converted to {typeof(T)}");
+            try
+            {
+                return (T)Enum.Parse(typeof(T), input);
+            }
+            catch
+            {
+                throw new Exception(
+                    $"the value: {input} does not match any of the following options {Enum.GetNames(typeof(T)).LogFormat()}");
+            }
+        }
     }
 }

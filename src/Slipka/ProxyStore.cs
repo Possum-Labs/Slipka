@@ -30,11 +30,16 @@ namespace Slipka
                 var record = LastUpdated[session.Id];
                 if (record.State == state)
                     continue;
-
-                record.State = state;
-                record.LastUpdate = DateTime.Now;
-                SessionRepository.UpdateSession(session);
+                PersistSession(session);
             }
+        }
+
+        private void PersistSession(Session session)
+        {
+            var record = LastUpdated[session.Id];
+            record.State = session.State();
+            record.LastUpdate = DateTime.Now;
+            SessionRepository.UpdateSession(session);
         }
 
         private List<Proxy> Proxies { get; }        
@@ -83,6 +88,12 @@ namespace Slipka
                 SessionRepository.UpdateSession(proxy.Session);
             }
         }
+
+        public void SaveSession(object sender, SessionEventArgs e)
+        {
+            PersistSession(e.Session);
+        }
+
         public IEnumerable<Session> All
         {
             get

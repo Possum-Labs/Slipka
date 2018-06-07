@@ -56,7 +56,7 @@ namespace Slipka.Controllers
             lock (ReservedPorts)
             {
                 session.ProxyPort = GetNewPort(value);
-                proxy = new Proxy(session, FileRepository, MessageRepository);
+                proxy = new Proxy(session, FileRepository, MessageRepository, Store.SaveSession);
                 Store.Add(proxy);
             }
             proxy.Init();

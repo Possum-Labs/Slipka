@@ -68,5 +68,9 @@ namespace LegacyTest
         public void ThenRetrievingTheResponseOfCallAsFile(int number, ProxyWrapper proxy, string name)
             => Interpeter.Add(name, (IFile) new InMemoryFile(proxy.DownloadResponse(number)));
 
+        [Then(@"retrieving the request of call '(.*)' for Proxy '(.*)' as File '(.*)'")]
+        public void ThenRetrievingTheRequestOfCallAsFile(int number, ProxyWrapper proxy, string name)
+            => Interpeter.Add(name, (IFile)new InMemoryFile(proxy.DownloadRequest(number)));
+
     }
 }
