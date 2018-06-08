@@ -1,0 +1,12 @@
+@api = http://localhost:4445/api
+@sessionId = 
+@proxyPort = 
+
+###
+
+PUT {{api}}/proxies/{{sessionId}}/record
+content-type: application/json
+
+{
+        "method":"POST"
+}

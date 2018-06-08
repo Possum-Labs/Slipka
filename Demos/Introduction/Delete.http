@@ -1,0 +1,9 @@
+@api = http://localhost:4445/api
+@sessionId = 
+@proxyPort = 
+
+###
+
+DELETE {{api}}/proxies/{{sessionId}}
+
+

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.Driver.GridFS;
+using Slipka.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;

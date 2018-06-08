@@ -1,0 +1,17 @@
+@api = http://localhost:4445/api
+@sessionId = 
+@proxyPort = 
+
+###
+
+PUT {{api}}/proxies/{{sessionId}}/inject
+content-type: application/json
+
+{
+        "uri":"api/foobar",
+        "response":{
+               "content":"Hello World" 
+        },
+        "statusCode":""
+}
+

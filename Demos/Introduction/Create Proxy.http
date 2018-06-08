@@ -1,0 +1,14 @@
+@api = http://localhost:4445/api
+@sessionId = 
+@proxyPort = 
+
+###
+
+POST {{api}}/proxies
+content-type: application/json
+
+{
+        "targetHost":"google.com",
+        "targetPort" : "80"
+}
+

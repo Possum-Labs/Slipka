@@ -1,0 +1,23 @@
+@api = http://localhost:4445/api
+@sessionId = 
+@proxyPort = 
+
+###
+
+PUT {{api}}/proxies/{{sessionId}}/tag
+content-type: application/json
+
+{
+        "method":"GET",
+        "duration":200
+}
+
+###
+
+PUT {{api}}/proxies/{{sessionId}}/tag
+content-type: application/json
+
+{
+        "method":"POST",
+        "duration":500
+}

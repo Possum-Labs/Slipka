@@ -1,0 +1,16 @@
+@api = http://localhost:4445/api
+@sessionId = 
+@proxyPort = 
+
+###
+
+GET http://google.com
+
+###
+
+GET http://localhost:{{{{proxyPort}}}}
+
+
+###
+
+GET http://localhost:{{{{proxyPort}}}}/api/foobar

@@ -1,4 +1,4 @@
-@slipkaHost = http://192.168.1.36
+@slipkaHost = http://localhost
 @slipkaAdminPort = 4445
 @sessionId = d4cf0b8e-e3a9-4b85-b932-deef8f282f94
 @proxyPort = 61739

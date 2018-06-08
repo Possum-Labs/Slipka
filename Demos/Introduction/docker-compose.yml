@@ -1,0 +1,20 @@
+version: '3.4'
+
+services:
+  db:
+    image: mongo
+    ports:
+      - "27017:27017"
+  slipka: 
+    image: slipka
+    build:
+      context: .
+      dockerfile: Slipka/Dockerfile
+    depends_on: 
+      - db
+    links: 
+      - "db:db"
+    ports:
+      - "4445:4445"
+      - "61710-61920:61710-61920"
+ 

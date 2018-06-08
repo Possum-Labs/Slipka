@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Slipka.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
