@@ -17,7 +17,7 @@ namespace Slipka
             Calls = new List<Call>();
             Tags = new List<string>();
             RecordedCalls = new List<CallTemplate>();
-            InterceptedCalls = new List<CallTemplate>();
+            InjectedCalls = new List<CallTemplate>();
             TaggedCalls = new List<CallTemplate>();
             Decorations = new List<Header>();
         }
@@ -44,7 +44,7 @@ namespace Slipka
         [BsonElement("recorded_calls")]
         public List<CallTemplate> RecordedCalls { get; set; }
         [BsonElement("overridden_calls")]
-        public List<CallTemplate> InterceptedCalls { get; set; }
+        public List<CallTemplate> InjectedCalls { get; set; }
         [BsonElement("tagged_calls")]
         public List<CallTemplate> TaggedCalls { get; set; }
         [BsonElement("decorations")]

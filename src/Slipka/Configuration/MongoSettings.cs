@@ -9,8 +9,8 @@ namespace Slipka.Configuration
     public class MongoSettings
     {
         [ConfigurationMember("ConnectionString")]
-        public string ConnectionString;
+        public string ConnectionString { get; set; }
         [ConfigurationMember("Database")]
-        public string Database;
+        public string Database { get; set; }
     }
 }

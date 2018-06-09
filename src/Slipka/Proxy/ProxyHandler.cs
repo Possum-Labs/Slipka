@@ -56,11 +56,11 @@ namespace Slipka
 
             var requestMessage = BuildMessage(request.Headers, request.Content);
 
-            if (Intercepting(call, requestMessage))
+            if (Injecting(call, requestMessage))
             {
-                var responseTemplate = Matches(Session.InterceptedCalls, call, requestMessage, Message.Empty).First();
+                var responseTemplate = Matches(Session.InjectedCalls, call, requestMessage, Message.Empty, ignoreDuration:true).First();
 
-                call.Intercepted = true;
+                call.Injected = true;
                 if (int.TryParse(responseTemplate.StatusCode, out var code))
                     call.StatusCode = code;
                 call.Duration = responseTemplate.Duration;
@@ -198,14 +198,15 @@ namespace Slipka
         private bool Recording(Call call, Message request, Message response = null) 
             => Matches(Session.RecordedCalls, call, request, response ?? Message.Empty).Any();
 
-        private bool Intercepting(Call call, Message request, Message response = null) 
-            => Matches(Session.InterceptedCalls, call, request, response ?? Message.Empty).Any();
+        private bool Injecting(Call call, Message request, Message response = null) 
+            => Matches(Session.InjectedCalls, call, request, response ?? Message.Empty, ignoreDuration:true).Any();
 
-        private IEnumerable<CallTemplate> Matches(List<CallTemplate> options, Call target, Message request, Message response)
+        private IEnumerable<CallTemplate> Matches(List<CallTemplate> options, Call target, Message request, Message response, bool ignoreDuration = false)
         {
             return options.Where(
                 c =>
                 ((c.Uri == null) || (new Regex(c.Uri, RegexOptions.IgnoreCase).IsMatch(target.Uri.AbsolutePath))) &&
+                ((ignoreDuration || c.Duration == null) ||(target.Duration != null && c.Duration<=target.Duration)) &&
                 (c.Request == null || c.Request.Headers == null || c.Request.Headers.Count == 0 || c.Request.Headers.Any(h =>
                     request.Headers.Any(t => t.Key == h.Key && t.Values.Intersect(h.Values).Any()))
                 ) &&

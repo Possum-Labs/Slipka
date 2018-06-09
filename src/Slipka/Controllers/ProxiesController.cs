@@ -15,9 +15,9 @@ namespace Slipka.Controllers
     [Route("api/Proxies")]
     public class ProxiesController : Controller
     {
-        public ProxiesController(IOptions<ProxySettings> settings, ProxyStore store, IFileRepository fileRepository, IMessageRepository messageRepository)
+        public ProxiesController(ProxySettings settings, ProxyStore store, IFileRepository fileRepository, IMessageRepository messageRepository)
         {
-            Settings = settings.Value;
+            Settings = settings;
             Store = store;
             FileRepository = fileRepository;
             MessageRepository = messageRepository;
@@ -47,7 +47,7 @@ namespace Slipka.Controllers
                 TargetPort = value.TargetPort ?? 80,
                 TaggedCalls = value.TaggedCalls ?? new List<CallTemplate>(),
                 RecordedCalls = value.RecordedCalls ?? new List<CallTemplate>(),
-                InterceptedCalls = value.InterceptedCalls ?? new List<CallTemplate>(),
+                InjectedCalls = value.InjectedCalls ?? new List<CallTemplate>(),
                 Decorations = value.Decorations ?? new List<Header>(),
             };
             session.InternalId = new MongoDB.Bson.ObjectId();
@@ -89,14 +89,14 @@ namespace Slipka.Controllers
             return Ok(session);
         }
 
-        [HttpPut("{id}/intercept")]
-        public ActionResult<Session> PutIntercept(string id, [FromBody] CallTemplate call)
+        [HttpPut("{id}/inject")]
+        public ActionResult<Session> PutInject(string id, [FromBody] CallTemplate call)
         {
             if (!SessionAvailableForModification(id, out var error, out Session session))
                 return error;
-            lock (session.InterceptedCalls)
+            lock (session.InjectedCalls)
             {
-                session.InterceptedCalls.Add(call);
+                session.InjectedCalls.Add(call);
             }
             return Ok(session);
         }

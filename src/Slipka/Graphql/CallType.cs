@@ -15,7 +15,7 @@ namespace Slipka.Graphql
 
             Field(d => d.StatusCode, nullable: true).Description("Http status code.");
             Field(d => d.Duration, nullable: true).Description("Duration in ms.");
-            Field(d => d.Intercepted).Description("Wether the call is intercepted.");
+            Field(d => d.Injected).Description("Wether the response was injected.");
             Field(d => d.Recorded).Description("Wether the call is recorded.");
             Field(d => d.Recieved).Description("When the call was recieved.");
 

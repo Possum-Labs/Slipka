@@ -4,10 +4,11 @@
 
 ###
 
-POST {{api}}/proxies
+PUT {{api}}/proxies/{{sessionId}}/decorate
 content-type: application/json
 
 {
-        "targetHost":"google.com"
+        "key":"Slipka testing",
+        "values":["Please ignore this request"]
 }
 

@@ -6,7 +6,7 @@ services:
     ports:
       - "27017:27017"
   slipka: 
-    image: slipka
+    image: bashamer/slipka
     build:
       context: .
       dockerfile: Slipka/Dockerfile

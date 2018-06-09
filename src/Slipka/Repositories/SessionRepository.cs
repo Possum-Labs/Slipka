@@ -13,7 +13,7 @@ namespace Slipka
     {
         private readonly SlipkaContext _context = null;
 
-        public SessionRepository(IOptions<MongoSettings> settings)
+        public SessionRepository(MongoSettings settings)
         {
             _context = new SlipkaContext(settings);
         }
@@ -84,7 +84,7 @@ namespace Slipka
                     TargetPort = item.TargetPort,
                     Tags = item.Tags.ToList(),
                     RecordedCalls = item.RecordedCalls,
-                    InterceptedCalls = item.InterceptedCalls,
+                    InjectedCalls = item.InjectedCalls,
                     TaggedCalls = item.TaggedCalls,
                     Decorations = item.Decorations,
                 };

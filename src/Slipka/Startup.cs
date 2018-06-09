@@ -28,24 +28,13 @@ namespace Slipka
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var configurationFactory = new ConfigurationFactory(Configuration);
 
             services.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
 
             services.AddMvc();
-            services.Configure<MongoSettings>(options =>
-            {
-                options.ConnectionString
-                    = Configuration.GetSection("MongoConnection:ConnectionString").Value;
-                options.Database
-                    = Configuration.GetSection("MongoConnection:Database").Value;
-            });
-            services.Configure<ProxySettings>(options =>
-            {
-                options.FirstPort
-                    = int.Parse(Configuration.GetSection("ProxySettings:FirstPort").Value);
-                options.LastPort
-                    = int.Parse(Configuration.GetSection("ProxySettings:LastPort").Value);
-            });
+            services.AddSingleton(configurationFactory.Create<MongoSettings>());
+            services.AddSingleton(configurationFactory.Create<ProxySettings>());
             services.AddTransient<ISessionRepository, SessionRepository>();
             services.AddTransient<IMessageRepository, MessageRepository>();
             services.AddTransient<IFileRepository, FileRepository>();

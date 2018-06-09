@@ -13,7 +13,7 @@ namespace Slipka
     {
         private readonly SlipkaContext _context = null;
 
-        public MessageRepository(IOptions<MongoSettings> settings)
+        public MessageRepository(MongoSettings settings)
         {
             _context = new SlipkaContext(settings);
         }

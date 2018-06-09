@@ -102,9 +102,9 @@ namespace PossumLabs.Specflow.Slipka
             Execute(request);
         }
 
-        public void RegisterIntercept(CallTemplate call)
+        public void RegisterInject(CallTemplate call)
         {
-            var request = new RestRequest($"/api/proxies/{ProxySession.Id}/intercept", Method.PUT);
+            var request = new RestRequest($"/api/proxies/{ProxySession.Id}/inject", Method.PUT);
             request.RequestFormat = DataFormat.Json;
             request.AddBody(call);
             Execute(request);
@@ -159,7 +159,7 @@ namespace PossumLabs.Specflow.Slipka
     calls(" + paramaters + @") {
         duration
         recorded
-        intercepted
+        injected
         statusCode
         path
         uri

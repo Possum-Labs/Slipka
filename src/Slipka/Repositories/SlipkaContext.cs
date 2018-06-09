@@ -13,10 +13,10 @@ namespace Slipka
     {
         private readonly IMongoDatabase _database;
 
-        public SlipkaContext(IOptions<MongoSettings> settings)
+        public SlipkaContext(MongoSettings settings)
         {
-            var client = new MongoClient(settings.Value.ConnectionString);
-            _database = client.GetDatabase(settings.Value.Database);
+            var client = new MongoClient(settings.ConnectionString);
+            _database = client.GetDatabase(settings.Database);
 
             Bucket = new GridFSBucket(_database, options: new GridFSBucketOptions
             {

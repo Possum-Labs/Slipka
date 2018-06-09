@@ -34,7 +34,7 @@ namespace Slipka
         
         //override
         [BsonElement("intercepted")]
-        public bool Intercepted { get; set; }
+        public bool Injected { get; set; }
 
         [BsonElement("recorded")]
         public bool Recorded { get; set; }

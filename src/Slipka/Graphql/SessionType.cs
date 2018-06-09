@@ -41,13 +41,13 @@ namespace Slipka.Graphql
             );
 
             Field<ListGraphType<CallTemplateType>>(
-                "interceptedCalls",
-                resolve: context => context.Source.InterceptedCalls
+                "injectedCalls",
+                resolve: context => context.Source.InjectedCalls
             );
 
             Field<ListGraphType<CallTemplateType>>(
                 "taggedCalls",
-                resolve: context => context.Source.InterceptedCalls
+                resolve: context => context.Source.InjectedCalls
             );
         }
     }

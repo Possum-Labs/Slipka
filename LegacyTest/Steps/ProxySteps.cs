@@ -28,7 +28,7 @@ namespace LegacyTest
 
         [Given(@"the Proxy '(.*)' injects the calls")]
         public void GivenTheProxyinjectsTheCalls(ProxyWrapper proxy, List<CallTemplate> calls)
-            => Executor.Execute(()=> calls.ForEach(c=> proxy.RegisterIntercept(c)));
+            => Executor.Execute(()=> calls.ForEach(c=> proxy.RegisterInject(c)));
 
         [Given(@"the Proxy '(.*)' records the calls")]
         public void GivenTheProxyRecordsTheCalls(ProxyWrapper proxy, List<CallTemplate> calls)

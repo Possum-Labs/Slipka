@@ -8,9 +8,9 @@ GET http://google.com
 
 ###
 
-GET http://localhost:{{{{proxyPort}}}}
+GET http://localhost:{{proxyPort}}
 
 
 ###
 
-GET http://localhost:{{{{proxyPort}}}}/api/foobar
+GET http://localhost:{{proxyPort}}/api/foobar

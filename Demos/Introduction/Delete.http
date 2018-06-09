@@ -1,6 +1,6 @@
 @api = http://localhost:4445/api
-@sessionId = 
-@proxyPort = 
+@sessionId = f3191f88-dfaf-4217-814f-a67e934b8cea
+@proxyPort = 61739
 
 ###
 

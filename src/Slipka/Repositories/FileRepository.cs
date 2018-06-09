@@ -14,7 +14,7 @@ namespace Slipka
 
         private readonly SlipkaContext _context = null;
 
-        public FileRepository(IOptions<MongoSettings> settings)
+        public FileRepository(MongoSettings settings)
         {
             _context = new SlipkaContext(settings);
         }

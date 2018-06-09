@@ -28,12 +28,12 @@ namespace Slipka.Configuration
                 environmentVarName = ((ConfigurationObjectAttribute)typeAttributes.First()).Path;
 
             var properties = type.GetProperties();
-            foreach(var property in properties)
+            foreach (var property in properties)
             {
                 string environmentPropName = null;
                 var propAttributes = property.GetCustomAttributes(typeof(ConfigurationMemberAttribute), false);
                 if (propAttributes.Any())
-                    environmentPropName = ((ConfigurationMemberAttribute)typeAttributes.First()).Path;
+                    environmentPropName = ((ConfigurationMemberAttribute)propAttributes.First()).Path;
 
                 string valueOverride = null;
                 try
@@ -42,13 +42,13 @@ namespace Slipka.Configuration
                 }
                 catch
                 { }
-                try
+
+                if ((!string.IsNullOrWhiteSpace(environmentVarName)) && (!String.IsNullOrWhiteSpace(environmentPropName)))
                 {
-                    if((!string.IsNullOrWhiteSpace(environmentVarName)) && (!String.IsNullOrWhiteSpace(environmentPropName)))
-                        valueOverride = Environment.GetEnvironmentVariable($"{environmentVarName}_{environmentPropName}");
+                    var envValue = Environment.GetEnvironmentVariable($"{environmentVarName}_{environmentPropName}");
+                    if (!String.IsNullOrWhiteSpace(envValue))
+                        valueOverride = envValue;
                 }
-                catch
-                { }
 
                 if (String.IsNullOrWhiteSpace(valueOverride))
                     continue;
@@ -56,21 +56,20 @@ namespace Slipka.Configuration
                 if (property.PropertyType == typeof(string))
                     property.SetValue(ret, valueOverride);
 
-                if (property.PropertyType == typeof(int))
+                else if (property.PropertyType == typeof(int))
                     property.SetValue(ret, Convert.ToInt32(valueOverride));
 
-                if (property.PropertyType == typeof(bool))
+                else if (property.PropertyType == typeof(bool))
                     property.SetValue(ret, Convert.ToBoolean(valueOverride));
 
-                throw new NotImplementedException($"Property of Type {property.PropertyType} is not supported.");
+                else
+                    throw new NotImplementedException($"Property of Type {property.PropertyType} is not supported.");
             }
 
-            if(type.GetFields().Any())
+            if (type.GetFields().Any())
                 throw new NotImplementedException($"Fields are not supported for ConfigurationFactory");
 
             return ret;
-
-
         }
     }
 }
