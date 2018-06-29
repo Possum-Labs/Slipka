@@ -11,8 +11,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Slipka.DomainObjects;
+using Slipka.Repositories;
 
-namespace Slipka
+namespace Slipka.Proxy
 {
     public class ProxyStartup
     {

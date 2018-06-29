@@ -1,9 +1,13 @@
 Others
--Tamper
--Expiration
--Environment Variables
--Auto cleanup
--test expansion
+-Auto documentation 3/4 -- report
+-Fix namespaces -- easy
 
+
+-Test expansion 1/10
 -Add basic UI
 -Add UI unittests
+-docker build
+-test in build
+-reports of test runs
+-emergency log (ui first)
+-Argument validations -- test cases

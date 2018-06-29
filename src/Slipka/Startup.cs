@@ -13,6 +13,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Slipka.Configuration;
 using Slipka.Graphql;
+using Slipka.Repositories;
+using Slipka.Proxy;
 
 namespace Slipka
 {
@@ -35,10 +37,12 @@ namespace Slipka
             services.AddMvc();
             services.AddSingleton(configurationFactory.Create<MongoSettings>());
             services.AddSingleton(configurationFactory.Create<ProxySettings>());
+            services.AddSingleton(new SlipkaContext(configurationFactory.Create<MongoSettings>())); //start the DB configuration
             services.AddTransient<ISessionRepository, SessionRepository>();
             services.AddTransient<IMessageRepository, MessageRepository>();
             services.AddTransient<IFileRepository, FileRepository>();
             services.AddSingleton<ProxyStore>();
+            services.AddSingleton<GridFsCleanupLoop>();
 
 
             services.AddSingleton<CallTemplateType>();

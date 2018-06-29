@@ -1,6 +1,7 @@
 ﻿using GraphQL.Client;
 using GraphQL.Common.Request;
 using PossumLabs.Specflow.Core;
+using PossumLabs.Specflow.Core.Variables;
 using PossumLabs.Specflow.Slipka.ValueObjects;
 using RestSharp;
 using System;
@@ -12,9 +13,9 @@ namespace PossumLabs.Specflow.Slipka
 {
     public class ProxyWrapper : IDomainObject
     {
-        public ProxyWrapper(Uri host, Uri destination) : this(host)
+        public ProxyWrapper(Uri host, Uri destination, TimeSpan? openFor = null, TimeSpan? retainedFor =  null) : this(host)
         {
-            Open(destination);
+            Open(destination, openFor, retainedFor);
         }
 
         public ProxyWrapper(Uri host)
@@ -30,25 +31,30 @@ namespace PossumLabs.Specflow.Slipka
         private SessionSummary ProxySession { get; set; }
         private GraphQLClient GraphQLClient { get;}
 
-        private Uri _proxyUri;
+        public Uri ProxyUri { get; private set; }
+        public string Id { get => ProxySession.Id; }
 
-        public Uri ProxyUri { get => _proxyUri; }
-
-        public void Open(Uri destination)
+        public void Open(Uri destination, TimeSpan? openFor = null, TimeSpan? retainedFor = null)
         {
-            ProxySession = new SessionSummary();
-            ProxySession.TargetHost = destination.Host;
-            ProxySession.TargetPort = destination.Port;
+            ProxySession = new SessionSummary
+            {
+                TargetHost = destination.Host,
+                TargetPort = destination.Port,
+                OpenFor = openFor.HasValue ? openFor.ToString() : null,
+                RetainedFor = retainedFor.HasValue ? retainedFor.ToString() : null
+            };
 
-            var request = new RestRequest("/api/proxies", Method.POST);
-            request.RequestFormat = DataFormat.Json;
+            var request = new RestRequest("/api/proxies", Method.POST)
+            {
+                RequestFormat = DataFormat.Json
+            };
             request.AddBody(ProxySession);
             var response = AdministrationClient.Execute<SessionSummary>(request);
             if (!response.IsSuccessful)
                 throw new Exception($"Was unable to open the proxy, error was {response.StatusCode} {response.StatusDescription}");
             ProxySession = response.Data;
-            _proxyUri = new Uri($"http://{AdministrationUri.Host}:{ProxySession.ProxyPort}");
-            ProxyClient = new RestClient(_proxyUri);
+            ProxyUri = new Uri($"http://{AdministrationUri.Host}:{ProxySession.ProxyPort}");
+            ProxyClient = new RestClient(ProxyUri);
         }
 
         public void LogsResponsesOfType(string type, string value)
@@ -88,32 +94,40 @@ namespace PossumLabs.Specflow.Slipka
 
         public void RegisterTag(CallTemplate call)
         {
-            var request = new RestRequest($"/api/proxies/{ProxySession.Id}/tag", Method.PUT);
-            request.RequestFormat = DataFormat.Json;
+            var request = new RestRequest($"/api/proxies/{ProxySession.Id}/tag", Method.PUT)
+            {
+                RequestFormat = DataFormat.Json
+            };
             request.AddBody(call);
             Execute(request);
         }
 
         public void RegisterRecording(CallTemplate call)
         {
-            var request = new RestRequest($"/api/proxies/{ProxySession.Id}/record", Method.PUT);
-            request.RequestFormat = DataFormat.Json;
+            var request = new RestRequest($"/api/proxies/{ProxySession.Id}/record", Method.PUT)
+            {
+                RequestFormat = DataFormat.Json
+            };
             request.AddBody(call);
             Execute(request);
         }
 
         public void RegisterInject(CallTemplate call)
         {
-            var request = new RestRequest($"/api/proxies/{ProxySession.Id}/inject", Method.PUT);
-            request.RequestFormat = DataFormat.Json;
+            var request = new RestRequest($"/api/proxies/{ProxySession.Id}/inject", Method.PUT)
+            {
+                RequestFormat = DataFormat.Json
+            };
             request.AddBody(call);
             Execute(request);
         }
 
         public void RegisterDecoration(Header header)
         {
-            var request = new RestRequest($"/api/proxies/{ProxySession.Id}/decorate", Method.PUT);
-            request.RequestFormat = DataFormat.Json;
+            var request = new RestRequest($"/api/proxies/{ProxySession.Id}/decorate", Method.PUT)
+            {
+                RequestFormat = DataFormat.Json
+            };
             request.AddBody(header);
             Execute(request);
         }
@@ -161,6 +175,7 @@ namespace PossumLabs.Specflow.Slipka
         recorded
         injected
         statusCode
+        method
         path
         uri
         tags
@@ -168,12 +183,14 @@ namespace PossumLabs.Specflow.Slipka
             content
             headers {
                 key
+                values
             }
         }
         response {
             content
             headers {
                 key
+                values
             }
         }
     }
@@ -184,6 +201,15 @@ namespace PossumLabs.Specflow.Slipka
             var graphQLResponse = task.Result;
             var calls = graphQLResponse.GetDataFieldAs<CallRecord[]>("calls");
             return new CallCollection(calls);
+        }
+
+        public void CloseAsync()
+        {
+            if (ProxySession == null)
+                return;
+            AdministrationClient.ExecuteAsync(new RestRequest(
+                $"/api/proxies/{ProxySession.Id}",
+                Method.DELETE), (response, handle) => { });
         }
 
         public void Close()
@@ -197,16 +223,20 @@ namespace PossumLabs.Specflow.Slipka
 
         public IRestResponse Call(string path, Method method)
         {
-            var request = new RestRequest(path, method);
-            request.RequestFormat = DataFormat.Json;
+            var request = new RestRequest(path, method)
+            {
+                RequestFormat = DataFormat.Json
+            };
             request.AddBody(ProxySession);
             return AdministrationClient.Execute(request);
         }
 
         public IRestResponse<T> Call<T>(string path, Method method) where T : new()
         {
-            var request = new RestRequest(path, method);
-            request.RequestFormat = DataFormat.Json;
+            var request = new RestRequest(path, method)
+            {
+                RequestFormat = DataFormat.Json
+            };
             request.AddBody(ProxySession);
             return AdministrationClient.Execute<T>(request);
         }
@@ -216,5 +246,8 @@ namespace PossumLabs.Specflow.Slipka
 
         public byte[] DownloadResponse(int number)
             => AdministrationClient.DownloadData(new RestRequest($"/api/sessions/{ProxySession.Id}/response/{number}"));
+
+        public string LogFormat()
+            => ProxySession.Id;
     }
 }

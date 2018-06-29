@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
+using Slipka.DomainObjects;
+using Slipka.Repositories;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,7 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace Slipka
+namespace Slipka.Proxy
 {
     public class Proxy : IDisposable
     {

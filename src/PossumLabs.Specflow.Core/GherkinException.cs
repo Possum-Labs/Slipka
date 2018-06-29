@@ -8,7 +8,6 @@ namespace PossumLabs.Specflow.Core
     {
         public GherkinException(string message) : base(message)
         {
-
         }
     }
 }

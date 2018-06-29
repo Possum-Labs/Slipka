@@ -1,5 +1,7 @@
-﻿using System;
+﻿using PossumLabs.Specflow.Core.Logging;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,8 +19,9 @@ namespace LegacyTest.Steps
         [BeforeScenario(Order = int.MinValue)]
         public void Setup()
         {
-            base.Register(new PossumLabs.Specflow.Core.Interpeter());
+            base.Register(new PossumLabs.Specflow.Core.Variables.Interpeter());
             base.Register(new PossumLabs.Specflow.Core.Exceptions.ActionExecutor());
+            base.Register((PossumLabs.Specflow.Core.Logging.ILog)new DefaultLogger(new DirectoryInfo(Environment.CurrentDirectory)));
         }
     }
 }

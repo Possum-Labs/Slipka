@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Slipka.DomainObjects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Slipka
+namespace Slipka.Repositories
 {
     public interface ISessionRepository
     {

@@ -1,4 +1,5 @@
 ﻿using GraphQL.Types;
+using Slipka.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,7 +48,7 @@ namespace Slipka.Graphql
                     var recorded = context.GetArgument<bool?>("recorded");
                     var minimumDuration = context.GetArgument<int?>("minimumDuration");
                     return data.GetSession(context.GetArgument<string>("sessionId"))
-                        .ContinueWith(session => session.Result.Calls
+                        .ContinueWith(session => session.Result?.Calls
                             .Where(call => tag == null || call.Tags.Contains(tag))
                             .Where(call => recorded == null || call.Recorded == recorded)
                             .Where(call => minimumDuration == null || (call.Duration.HasValue && call.Duration > minimumDuration)));

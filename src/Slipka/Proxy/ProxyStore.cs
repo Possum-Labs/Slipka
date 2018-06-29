@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Slipka.DomainObjects;
+using Slipka.Repositories;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Slipka
+namespace Slipka.Proxy
 {
     public class ProxyStore
     {
@@ -28,6 +30,11 @@ namespace Slipka
             {
                 var state = session.State();
                 var record = LastUpdated[session.Id];
+                if (session.LeaveProxyOpenUntil < DateTime.UtcNow)
+                {
+                    Remove(session.Id);
+                    continue;
+                }
                 if (record.State == state)
                     continue;
                 PersistSession(session);

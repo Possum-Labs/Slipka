@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 
-namespace PossumLabs.Specflow.Core
+namespace PossumLabs.Specflow.Core.Variables
 {
     public class ValueMemberInfo
     {
@@ -16,7 +16,8 @@ namespace PossumLabs.Specflow.Core
         PropertyInfo Property { get; }
         FieldInfo Field { get; }
 
-        public string Name => Property.Name ?? Field.Name;
+        public string Name => (Property != null) ? Property.Name : Field.Name;
+        public Type Type => (Property != null) ? Property.PropertyType : Field.FieldType;
 
         public bool HasValue(object source)
         {
@@ -37,8 +38,10 @@ namespace PossumLabs.Specflow.Core
 
         public void SetValue(object source, object value)
         {
-
+            if (Property != null)
+                Property.SetValue(source, value);
+            else
+                Field.SetValue(source, value);
         }
-        
     }
 }

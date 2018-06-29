@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PossumLabs.Specflow.Core
+namespace PossumLabs.Specflow.Core.Variables
 {
     public class TypeConverter
     {
@@ -11,6 +11,7 @@ namespace PossumLabs.Specflow.Core
             Conversion = conversion;
             Test = test;
         }
+
         public Func<object, IValueObject> Conversion { get; private set; }
         public Predicate<object> Test { get; private set; }
     }

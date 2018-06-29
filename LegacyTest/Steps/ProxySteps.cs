@@ -22,6 +22,10 @@ namespace LegacyTest
             //Constructor tackles this
         }
 
+        [AfterScenario(Order =int.MinValue)]
+        public void CloseAllProxies()
+            => base.Repository.ToList().ForEach(w => w.Value.CloseAsync());
+
         [Given(@"the Slipka Prox(?:y|ies)")]
         public void GivenTheSlipkaProxyFor(Dictionary<string, ProxyWrapper> proxies)
             => proxies.Keys.ToList().ForEach(k=> Add(k, proxies[k]));
@@ -42,7 +46,6 @@ namespace LegacyTest
         public void GivenTheProxyDecoratesWith(ProxyWrapper proxy, List<Header> decorations)
             => Executor.Execute(() => decorations.ForEach(d => proxy.RegisterDecoration(d)));
 
-
         [Then(@"retrieving the (u?n?)recorded calls from Proxy '(.*)' as '(.*)'")]
         public void ThenRetrievingTheRecordedCallsFromProxyAs(string un, ProxyWrapper proxy, string name)
             => Interpeter.Add(name, proxy.GetCalls(recorded:un!="un"));
@@ -54,7 +57,6 @@ namespace LegacyTest
         [Then(@"retrieving the calls from Proxy '(.*)' as '(.*)'")]
         public void ThenRetrievingTheCallsFromProxyAs(ProxyWrapper proxy, string name)
             => Interpeter.Add(name, proxy.GetCalls());
-
 
         [Then(@"close the Proxy '(.*)'")]
         public void ThenCloseTheProxy(ProxyWrapper proxy)

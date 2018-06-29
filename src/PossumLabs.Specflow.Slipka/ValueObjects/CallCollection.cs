@@ -1,4 +1,5 @@
 ﻿using PossumLabs.Specflow.Core;
+using PossumLabs.Specflow.Core.Variables;
 using PossumLabs.Specflow.Slipka;
 using System;
 using System.Collections.Generic;

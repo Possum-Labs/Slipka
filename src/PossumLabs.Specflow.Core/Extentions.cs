@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -20,48 +21,8 @@ namespace PossumLabs.Specflow.Core
         public static string LogFormat<T>(this IEnumerable<IEnumerable<T>> l, Func<T, string> f)
             => l.Select(x=>x.Select(y=>f.Invoke(y))).LogFormat();
 
-        public static T ToEnum<T>(this string name) where T : struct
-        {
-            T e;
-            if (!Enum.TryParse<T>(name, out e))
-                throw new GherkinException($"Unable to conver {name} to Enumeration {typeof(T).Name} please use one of these {Enum.GetNames(typeof(T)).LogFormat()}");
-            return e;
-        }
-
         public static bool None<T>(this IEnumerable<T> l)
             => !l.Any();
-
-        public static Exception[] GetFailedValidations(this object o, IEnumerable<Validation> validations)
-            => validations
-                .Select(x => x.Validate(o))
-                .Where(x => x != null)
-                .ToArray();
-
-        public static void Validate(this object o, params Validation[] validations)
-            => o.Validate(validations);
-
-        public static void Validate(this object o, IEnumerable<Validation> validations)
-        {
-            var failedVaidations = o.GetFailedValidations(validations);
-
-            if (failedVaidations.Any())
-                throw new AggregateException(failedVaidations.OrderBy(e => e.Message.Length));
-        }
-
-        public static bool Contains(this IEnumerable o, Validation validation)
-            => o.Cast<object>().Where(x => validation.Validate(x) == null).Any();
-
-        public static bool Contains(this IEnumerable o, IEnumerable<Validation> validations)
-            => o.Cast<object>().Where(x => x.GetFailedValidations(validations).None()).Any();
-
-        public static bool Contains(this IEnumerable o, IEnumerable<IEnumerable<Validation>> validationRows)
-            => validationRows.Where(validations => !o.Cast<object>().Contains(validations)).None();
-
-        public static bool Contains(this object o, IEnumerable<IEnumerable<Validation>> validationRows)
-            => o.ConvertToIEnumerable().Contains(validationRows);
-
-        public static bool Contains(this object o, Validation validation)
-            => o.ConvertToIEnumerable().Contains(validation);
 
         public static IEnumerable ConvertToIEnumerable(this object o)
         {
@@ -72,19 +33,7 @@ namespace PossumLabs.Specflow.Core
             throw new GherkinException("The referenced variable is not enumerable.");
         }
 
-        public static T ParseAsEnum<T>(this string input)
-        {
-            if (input == null)
-                throw new Exception($"null cannot be converted to {typeof(T)}");
-            try
-            {
-                return (T)Enum.Parse(typeof(T), input);
-            }
-            catch
-            {
-                throw new Exception(
-                    $"the value: {input} does not match any of the following options {Enum.GetNames(typeof(T)).LogFormat()}");
-            }
-        }
+        public static string RelativeFrom(this FileInfo file, DirectoryInfo directory)
+            => new Uri(directory.FullName).MakeRelativeUri(new Uri(file.FullName)).ToString();
     }
 }

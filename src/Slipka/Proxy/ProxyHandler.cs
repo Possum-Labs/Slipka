@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using MongoDB.Bson;
+using Slipka.DomainObjects;
+using Slipka.Repositories;
+using Slipka.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,7 +17,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Slipka
+namespace Slipka.Proxy
 {
     public class ProxyHandler : HttpMessageHandler
     {
@@ -165,6 +168,7 @@ namespace Slipka
             var message = new Message
             {
                 Headers = headers.Select(h => new Header(h.Key, h.Value)).ToList(),
+                RetainDataUntil = Session.RetainDataUntil
             };
             if (content != null)
             {
@@ -205,6 +209,7 @@ namespace Slipka
         {
             return options.Where(
                 c =>
+                ((c.Method == null) || (c.Method == target.Method)) &&
                 ((c.Uri == null) || (new Regex(c.Uri, RegexOptions.IgnoreCase).IsMatch(target.Uri.AbsolutePath))) &&
                 ((ignoreDuration || c.Duration == null) ||(target.Duration != null && c.Duration<=target.Duration)) &&
                 (c.Request == null || c.Request.Headers == null || c.Request.Headers.Count == 0 || c.Request.Headers.Any(h =>

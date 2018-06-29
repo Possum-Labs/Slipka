@@ -2,20 +2,21 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Slipka.Configuration;
+using Slipka.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Slipka
+namespace Slipka.Repositories
 {
     public class MessageRepository: IMessageRepository
     {
-        private readonly SlipkaContext _context = null;
+        private SlipkaContext Context { get; }
 
-        public MessageRepository(MongoSettings settings)
+        public MessageRepository(SlipkaContext context)
         {
-            _context = new SlipkaContext(settings);
+            Context = context;
         }
 
         // query after Id or InternalId (BSonId value)
@@ -25,20 +26,20 @@ namespace Slipka
             if (id == ObjectId.Empty)
                 return null;
 
-            return await _context.Messages
+            return await Context.Messages
                             .Find(Message => Message.InternalId == id)
                             .FirstOrDefaultAsync();
         }
 
         public async Task AddMessage(Message item)
         {
-            await _context.Messages.InsertOneAsync(item);
+            await Context.Messages.InsertOneAsync(item);
         }
 
         public async Task<bool> RemoveMessage(string id)
         {
             DeleteResult actionResult
-                = await _context.Messages.DeleteOneAsync(
+                = await Context.Messages.DeleteOneAsync(
                     Builders<Message>.Filter.Eq("Id", id));
 
             return actionResult.IsAcknowledged
@@ -47,7 +48,7 @@ namespace Slipka
 
         public async Task UpdateMessage(Message item)
         {
-            await _context.Messages
+            await Context.Messages
                 .ReplaceOneAsync(n => n.InternalId.Equals(item.InternalId)
                         , item
                         , new UpdateOptions { IsUpsert = true });

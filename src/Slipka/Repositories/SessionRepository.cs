@@ -2,25 +2,26 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Slipka.Configuration;
+using Slipka.DomainObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Slipka
+namespace Slipka.Repositories
 {
     public class SessionRepository : ISessionRepository
     {
-        private readonly SlipkaContext _context = null;
+        private SlipkaContext Context { get; }
 
-        public SessionRepository(MongoSettings settings)
+        public SessionRepository(SlipkaContext context)
         {
-            _context = new SlipkaContext(settings);
+            Context = context;
         }
 
         public async Task<IEnumerable<Session>> GetAllSessions()
         {
-            return await _context.Sessions
+            return await Context.Sessions
                     .Find(_ => true).ToListAsync();
         }
 
@@ -29,7 +30,7 @@ namespace Slipka
         public async Task<Session> GetSession(string id)
         {
             ObjectId internalId = GetInternalId(id);
-            return await _context.Sessions
+            return await Context.Sessions
                             .Find(Session => Session.InternalId == internalId
                                     || Session.Id == id)
                             .FirstOrDefaultAsync();
@@ -37,8 +38,7 @@ namespace Slipka
 
         private ObjectId GetInternalId(string id)
         {
-            ObjectId internalId;
-            if (!ObjectId.TryParse(id, out internalId))
+            if (!ObjectId.TryParse(id, out ObjectId internalId))
                 internalId = ObjectId.Empty;
 
             return internalId;
@@ -46,13 +46,13 @@ namespace Slipka
 
         public async Task AddSession(Session item)
         {
-            await _context.Sessions.InsertOneAsync(item);
+            await Context.Sessions.InsertOneAsync(item);
         }
 
         public async Task<bool> RemoveSession(string id)
         {
             DeleteResult actionResult
-                = await _context.Sessions.DeleteOneAsync(
+                = await Context.Sessions.DeleteOneAsync(
                     Builders<Session>.Filter.Eq("Id", id));
 
             return actionResult.IsAcknowledged
@@ -62,7 +62,7 @@ namespace Slipka
         public async Task<bool> RemoveSessions()
         {
             DeleteResult actionResult
-                = await _context.Sessions.DeleteManyAsync(Builders<Session>.Filter.Empty);
+                = await Context.Sessions.DeleteManyAsync(Builders<Session>.Filter.Empty);
 
             return actionResult.IsAcknowledged
                 && actionResult.DeletedCount > 0;
@@ -90,7 +90,7 @@ namespace Slipka
                 };
             }
 
-            await _context.Sessions
+            await Context.Sessions
                 .ReplaceOneAsync(n => n.InternalId.Equals(item.InternalId)
                         , copy
                         , new UpdateOptions { IsUpsert = true });

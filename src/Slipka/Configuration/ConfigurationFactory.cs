@@ -52,7 +52,7 @@ namespace Slipka.Configuration
 
                 if (String.IsNullOrWhiteSpace(valueOverride))
                     continue;
-
+                //TODO: better error messages for failed conversions and parsing
                 if (property.PropertyType == typeof(string))
                     property.SetValue(ret, valueOverride);
 
@@ -61,6 +61,9 @@ namespace Slipka.Configuration
 
                 else if (property.PropertyType == typeof(bool))
                     property.SetValue(ret, Convert.ToBoolean(valueOverride));
+
+                else if (property.PropertyType == typeof(TimeSpan))
+                    property.SetValue(ret, TimeSpan.Parse(valueOverride));
 
                 else
                     throw new NotImplementedException($"Property of Type {property.PropertyType} is not supported.");

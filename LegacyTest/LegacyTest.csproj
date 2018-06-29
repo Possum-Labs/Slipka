@@ -87,10 +87,20 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Decoration.feature</DependentUpon>
     </Compile>
+    <Compile Include="Features\Expiration.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Expiration.feature</DependentUpon>
+    </Compile>
     <Compile Include="Features\Forwarding.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Forwarding.feature</DependentUpon>
+    </Compile>
+    <Compile Include="Features\AttributeUsage.feature.cs">
+      <DependentUpon>AttributeUsage.feature</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="Features\Injection.feature.cs">
       <AutoGen>True</AutoGen>
@@ -135,6 +145,7 @@
       <DependentUpon>Tagging.feature</DependentUpon>
     </Compile>
     <Compile Include="Framework\FileSteps.cs" />
+    <Compile Include="Steps\SlipkaSteps.cs" />
     <Compile Include="Steps\WaitSteps.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -150,9 +161,17 @@
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Decoration.feature.cs</LastGenOutput>
     </None>
+    <None Include="Features\Expiration.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>Expiration.feature.cs</LastGenOutput>
+    </None>
     <None Include="Features\Forwarding.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Forwarding.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\AttributeUsage.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>AttributeUsage.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\Injection.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>

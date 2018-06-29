@@ -1,13 +1,14 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
+using Slipka.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Slipka
+namespace Slipka.DomainObjects
 {
     public class Session
     {
@@ -49,6 +50,12 @@ namespace Slipka
         public List<CallTemplate> TaggedCalls { get; set; }
         [BsonElement("decorations")]
         public List<Header> Decorations { get; set; }
+
+        [BsonElement("retain_data_until")]
+        public DateTime RetainDataUntil { get; set; }
+
+        [BsonIgnore]
+        public DateTime LeaveProxyOpenUntil { get; set; }
 
         [BsonIgnore]
         public bool Active { get; set; }

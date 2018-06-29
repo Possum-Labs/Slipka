@@ -1,4 +1,5 @@
 ﻿using PossumLabs.Specflow.Core;
+using PossumLabs.Specflow.Core.Variables;
 using System;
 using System.Collections.Generic;
 
@@ -28,5 +29,8 @@ namespace PossumLabs.Specflow.Slipka
         public Uri Uri { get; set; }
 
         public double? Duration { get; set; }
+
+        public string LogFormat()
+            => $"{Method} {Uri}";
     }
 }

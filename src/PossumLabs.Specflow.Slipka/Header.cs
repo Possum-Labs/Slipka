@@ -1,4 +1,5 @@
 ﻿using PossumLabs.Specflow.Core;
+using PossumLabs.Specflow.Core.Variables;
 using System;
 using System.Collections.Generic;
 using System.Linq;

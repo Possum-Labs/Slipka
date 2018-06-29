@@ -7,7 +7,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Slipka.ApiArguments;
 using Slipka.Configuration;
+using Slipka.DomainObjects;
+using Slipka.Proxy;
+using Slipka.Repositories;
+using Slipka.ValueObjects;
 
 namespace Slipka.Controllers
 {
@@ -34,30 +39,40 @@ namespace Slipka.Controllers
 
         // POST: api/Proxies
         [HttpPost]
-        public ActionResult<Session> Post([FromBody] Session value)
+        public ActionResult<Session> Post([FromBody] CreateProxyMessage value)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+            var open = value.OpenFor == null ? Settings.DefaultOpenFor:TimeSpan.Parse(value.OpenFor);
+            var retained = value.RetainedFor == null ? Settings.DefaultRetainedFor:TimeSpan.Parse(value.RetainedFor);
 
             var session = new Session
             {
                 TargetHost = value.TargetHost,
                 TargetPort = value.TargetPort ?? 80,
-                TaggedCalls = value.TaggedCalls ?? new List<CallTemplate>(),
-                RecordedCalls = value.RecordedCalls ?? new List<CallTemplate>(),
-                InjectedCalls = value.InjectedCalls ?? new List<CallTemplate>(),
-                Decorations = value.Decorations ?? new List<Header>(),
+                LeaveProxyOpenUntil = DateTime.UtcNow.Add(open > Settings.MaxOpenFor ? Settings.MaxOpenFor : open),
+                RetainDataUntil = DateTime.UtcNow.Add(retained > Settings.MaxRetainedFor ? Settings.MaxRetainedFor : retained)
             };
+
+            if (value.TaggedCalls != null)
+                session.TaggedCalls.AddRange(value.TaggedCalls.Select(x=>x.AsCallTemplate));
+            if (value.RecordedCalls != null)
+                session.RecordedCalls.AddRange(value.RecordedCalls.Select(x => x.AsCallTemplate));
+            if (value.InjectedCalls != null)
+                session.InjectedCalls.AddRange(value.InjectedCalls.Select(x => x.AsCallTemplate));
+            if (value.Decorations != null)
+                session.Decorations.AddRange(value.Decorations.Select(x => x.AsHeader));
+
             session.InternalId = new MongoDB.Bson.ObjectId();
             session.Calls = new List<Call>();
 
-            Proxy proxy;
+            Slipka.Proxy.Proxy proxy;
             lock (ReservedPorts)
             {
-                session.ProxyPort = GetNewPort(value);
-                proxy = new Proxy(session, FileRepository, MessageRepository, Store.SaveSession);
+                session.ProxyPort = GetNewPort(session);
+                proxy = new Slipka.Proxy.Proxy(session, FileRepository, MessageRepository, Store.SaveSession);
                 Store.Add(proxy);
             }
             proxy.Init();

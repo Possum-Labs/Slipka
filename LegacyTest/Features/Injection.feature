@@ -1,10 +1,11 @@
-﻿Feature: Injection
+﻿@Slipka
+Feature: Injection
 	Make sure that recorded responses work correctly
 
 Background:
 	Given the Slipka Proxy
-	| var | Host                  | Destination           |
-	| P1  | http://localhost:4445 | http://PossumLabs.com |
+	| var | Destination           |
+	| P1  | http://PossumLabs.com |
 
 Scenario: Get Hello World
 	Given the Proxy 'P1' injects the calls
@@ -14,8 +15,7 @@ Scenario: Get Hello World
 	| var | Host        | Path | Method |
 	| C1  | P1.ProxyUri | test | GET    |
 	When the Call 'C1' is executed
-	Then close the Proxy 'P1'
-	And 'C1' has the values
+	Then 'C1' has the values
 	| Response Content | StatusCode |
 	| Hello World      | 200        |
 
@@ -39,8 +39,7 @@ Scenario Outline: Other methods
 	| var | Host        | Path | Method   |
 	| C1  | P1.ProxyUri | test | <Method> |
 	When the Call 'C1' is executed
-	Then close the Proxy 'P1'
-	And 'C1' has the values
+	Then 'C1' has the values
 	| Response Content | StatusCode |
 	| <ResponseContent>           | 200        |
 Examples: 
@@ -59,16 +58,15 @@ Scenario: Delay
 	| var | Host        | Path | Method |
 	| C1  | P1.ProxyUri | test | GET    |
 	When the Call 'C1' is executed
-	Then close the Proxy 'P1'
-	And 'C1' has the values
+	Then 'C1' has the values
 	|Duration |
 	|> 1000   |
 
 
 Scenario: Make sure that we don't forward the original call
 	Given the Slipka Proxy
-	| var | Host                  | Destination |
-	| P2  | http://localhost:4445 | P1.ProxyUri |
+	| var | Destination |
+	| P2  | P1.ProxyUri |
 	Given the Proxy 'P2' injects the calls
 	| Uri   | Response Content | StatusCode | Method |
 	| /test | Hello World      | 200        | GET    |
@@ -76,9 +74,7 @@ Scenario: Make sure that we don't forward the original call
 	| var | Host        | Path | Method |
 	| C1  | P2.ProxyUri | test | GET    |
 	When the Call 'C1' is executed
-	Then close the Proxy 'P1'
-	And close the Proxy 'P2'
-	And retrieving the calls from Proxy 'P1' as 'RC' 
+	Then retrieving the calls from Proxy 'P1' as 'RC' 
 	And 'RC' has the values
 	| Count |
 	| 0     |
@@ -93,8 +89,7 @@ Scenario: inject by method
 	| var | Host        | Path | Method |
 	| C1  | P1.ProxyUri | test | GET    |
 	When the Call 'C1' is executed
-	Then close the Proxy 'P1'
-	And 'C1' has the values
+	Then 'C1' has the values
 	| Response Content | StatusCode |
 	| Hello World      | 200        |
 
@@ -106,8 +101,7 @@ Scenario: inject by regular expression in path
 	| var | Host        | Path | Method |
 	| C1  | P1.ProxyUri | test | GET    |
 	When the Call 'C1' is executed
-	Then close the Proxy 'P1'
-	And 'C1' has the values
+	Then 'C1' has the values
 	| Response Content | StatusCode |
 	| Hello World      | 200        |
 

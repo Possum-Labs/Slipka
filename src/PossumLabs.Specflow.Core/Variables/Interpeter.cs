@@ -6,20 +6,24 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace PossumLabs.Specflow.Core
+namespace PossumLabs.Specflow.Core.Variables
 {
     public class Interpeter
     {
         public Interpeter()
         {
             Repositories = new List<IRepository>();
+            HasIndexer = new Regex(@"\[([0-9]+)\]", RegexOptions.Compiled);
+            MatchVariable = new Regex(@"^[a-zA-Z][0-9a-zA-Z]*((?:\[[0-9]+\])|(?:\.[a-zA-Z][0-9a-zA-Z]*))*$", RegexOptions.Compiled);
         }
 
         private List<IRepository> Repositories { get; set; }
         private const char Sepetator = '.';
+        private Regex HasIndexer { get; }
+        private Regex MatchVariable { get; }
 
-        public void Register(IRepository repository) =>
-                Repositories.Add(repository);
+        public void Register(IRepository repository) 
+            => Repositories.Add(repository);
 
         public void Set<X>(string path, X value)
         {
@@ -28,14 +32,14 @@ namespace PossumLabs.Specflow.Core
             prop.SetValue(target, value);
         }
 
-        public object Resolve(string path) =>
-            Walker(path.Split('.'));
+        public object Resolve(string path) 
+            => Walker(path.Split('.'));
 
-        public object Get(Type t, string path) =>
-            IsVarialbe(path) ? Convert(t, Resolve(path)) : Convert(t, path);
+        public object Get(Type t, string path) 
+            => IsVarialbe(path) ? Convert(t, Resolve(path)) : Convert(t, path);
 
-        public X Get<X>(string path) =>
-            Convert<X>(Resolve(path));
+        public X Get<X>(string path) 
+            => Convert<X>(Resolve(path));
 
         private Func<object, object> ResolveIndexFactory(string rawRoot, out string root, IEnumerable<string> path)
         {
@@ -98,9 +102,6 @@ namespace PossumLabs.Specflow.Core
             return current;
         }
 
-        private Regex HasIndexer = new Regex(@"\[([0-9]+)\]", RegexOptions.Compiled);
-        private Regex MatchVariable = new Regex(@"^[a-zA-Z][0-9a-zA-Z]*((?:\[[0-9]+\])|(?:\.[a-zA-Z][0-9a-zA-Z]*))*$", RegexOptions.Compiled);
-
         private bool IsVarialbe(string path) => MatchVariable.IsMatch(path);
 
         public X Convert<X>(object o) => (X)Convert(typeof(X), o);
@@ -144,18 +145,25 @@ namespace PossumLabs.Specflow.Core
                 return convertConversions.First().Invoke(null, new object[] { o });
             }
 
-            if (t.IsEnum && sourceType == typeof(string))
+            if (targetType.IsEnum && sourceType == typeof(string))
             {
-                return Enum.Parse(t, o as string);
+                return Enum.Parse(targetType, o as string);
             }
 
-            if (t.GetConstructors().Where(x => x.IsPublic && !x.IsStatic).Select(c => c.GetParameters())
+            if (targetType.GetConstructors().Where(x => x.IsPublic && !x.IsStatic).Select(c => c.GetParameters())
                 .Any(x => x.Count() == 1 && x.First().ParameterType == sourceType))
             {
-                return Activator.CreateInstance(t, o);
+                return Activator.CreateInstance(targetType, o);
             }
 
-            if (t == typeof(string))
+            var parseMethod = targetType.GetMethods(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)
+                .Where(m => m.Name == "Parse" && m.GetParameters().Length == 1 && m.GetParameters().First().ParameterType == sourceType);
+            if (parseMethod.Any())
+            {
+                return parseMethod.First().Invoke(null, new object[] { o });
+            }
+
+            if (targetType == typeof(string))
                 return o.ToString();
 
             if(sourceType == typeof(string) && ((string)o).IsValidJson())

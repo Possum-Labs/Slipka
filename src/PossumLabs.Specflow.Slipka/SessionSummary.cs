@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace PossumLabs.Specflow.Slipka
 {
@@ -14,5 +15,7 @@ namespace PossumLabs.Specflow.Slipka
         public List<Call> RecordedCalls { get; set; }
         public List<Call> OverriddenCalls { get; set; }
         public List<Call> Calls { get; set; }
+        public string OpenFor { get; set; }
+        public string RetainedFor { get; set; }
     }
 }

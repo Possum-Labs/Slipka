@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using MongoDB.Bson;
+using Slipka.DomainObjects;
+using Slipka.Repositories;
+using Slipka.ValueObjects;
 
 namespace Slipka.Controllers
 {
@@ -44,7 +47,7 @@ namespace Slipka.Controllers
                 "application/x-binary");
         }
 
-        private async Task<Message> getMessageFromSession(Session session, int number, Func<Call, ObjectId> selector)
+        private async Task<Message> GetMessageFromSession(Session session, int number, Func<Call, ObjectId> selector)
             => await MessageRepository.GetMessage(selector(session.Calls[number]));
 
         private async Task<ActionResult> SimulateMessage(string id, int number, Func<Call, ObjectId> selector)
@@ -53,7 +56,7 @@ namespace Slipka.Controllers
             if (session == null || session.Calls.Count <= number)
                 return new StatusCodeResult((int)System.Net.HttpStatusCode.NotFound);
             
-            var message = await getMessageFromSession(session, number, selector);
+            var message = await GetMessageFromSession(session, number, selector);
             
             var response = await BuildResponseFromMessage(message);
             

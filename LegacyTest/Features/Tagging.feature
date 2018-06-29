@@ -1,9 +1,10 @@
-﻿Feature: Tagging Calls
+﻿@Slipka
+Feature: Tagging Calls
 
 Background:
 	Given the Slipka Proxy
-	| var | Host                  | Destination           |
-	| P1  | http://localhost:4445 | http://PossumLabs.com |
+	| var | Destination           |
+	| P1  | http://PossumLabs.com |
 
 Scenario: Tagging happy path
 	Given the Proxy 'P1' injects the calls
@@ -19,9 +20,8 @@ Scenario: Tagging happy path
 	| C2  | P1.ProxyUri | other | GET    |
 	When the Call 'C1' is executed
 	And the Call 'C2' is executed
-	Then close the Proxy 'P1'
 	And wait 1000 ms
-	And retrieving the tagged calls from Proxy 'P1' with tag 'Test' as 'RC'
+	Then retrieving the tagged calls from Proxy 'P1' with tag 'Test' as 'RC'
 	And 'RC' has the values
 	| Count |
 	| 1     |
@@ -40,8 +40,8 @@ Scenario: Tagging slow calls
 	| fast | Hello World      | 200        | GET    | 1        |
 	| slow | Hello World      | 200        | GET    | 4000     |
 	Given the Slipka Proxy
-	| var | Host                  | Destination |
-	| P2  | http://localhost:4445 | P1.ProxyUri |
+	| var | Destination |
+	| P2  | P1.ProxyUri |
 	Given the Proxy 'P2' tags the calls
 	| Tags     | Method | Duration |
 	| ['Test'] | GET    | 3000     |
@@ -51,10 +51,8 @@ Scenario: Tagging slow calls
 	| C2  | P2.ProxyUri | slow | GET    |
 	When the Call 'C1' is executed
 	And the Call 'C2' is executed
-	Then close the Proxy 'P1'
-	And close the Proxy 'P2'
 	And wait 1000 ms
-	And retrieving the tagged calls from Proxy 'P2' with tag 'Test' as 'RC'
+	Then retrieving the tagged calls from Proxy 'P2' with tag 'Test' as 'RC'
 	And 'RC' has the values
 	| Count |
 	| 1     |

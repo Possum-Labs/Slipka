@@ -1,9 +1,10 @@
-﻿Feature: OrderViolations
+﻿@Slipka
+Feature: OrderViolations
 
 Background:
 	Given the Slipka Proxy
-	| var | Host                  | Destination           |
-	| P1  | http://localhost:4445 | http://PossumLabs.com |
+	| var | Destination           |
+	| P1  | http://PossumLabs.com |
 	Given the Proxy 'P1' injects the calls
 	| Uri   | Response Content | StatusCode | Method |
 	| /test | Hello World      | 200        | GET    |

@@ -12,15 +12,14 @@ namespace PossumLabs.Specflow.Core.Exceptions
             {
                 action();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 if (ExpectException && Exception == null)
                     Exception = e;
                 else if (ExpectException)
-                    throw new AggregateException(Exception, e);
+                    throw new AggregateException(new Exception($"One exception was expected, multiple were throw"), Exception, e);
                 else
                     throw e;
-
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using PossumLabs.Specflow.Core;
+using PossumLabs.Specflow.Core.Validations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,7 +54,7 @@ namespace LegacyTest.Framework
         public void ThenTheCallContainsTheValues(object o, IEnumerable<IEnumerable<Validation>> validations)
             => o.Contains(validations);
 
-        [Then(@"'(.*)' has the value '(.*)'")]
+        [Then(@"'(.*)' contains the value '(.*)'")]
         public void ThenTheCallContainsTheValue(object o, Validation validation)
             => o.Contains(validation);
     }

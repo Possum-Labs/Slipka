@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace PossumLabs.Specflow.Core
+namespace PossumLabs.Specflow.Core.Validations
 {
     public class Validation
     {
@@ -12,8 +12,8 @@ namespace PossumLabs.Specflow.Core
             Text = text;
         }
 
-        public Func<object, string> Predicate { get; private set; }
-        public string Text { get; private set; }
+        public Func<object, string> Predicate { get; }
+        public string Text { get; }
 
         public Exception Validate(object o)
         {

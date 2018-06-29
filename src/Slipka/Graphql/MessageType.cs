@@ -1,4 +1,6 @@
 ﻿using GraphQL.Types;
+using Slipka.Repositories;
+using Slipka.ValueObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,11 +1,12 @@
-﻿Feature: Decoration
+﻿@Slipka
+Feature: Decoration
 
 Background:
 	Given the Slipka Proxy
-	| var | Host                  | Destination           |
-	| P1  | http://localhost:4445 | http://PossumLabs.com |
+	| var | Destination           |
+	| P1  | http://PossumLabs.com |
 
-Scenario: Decorations happy path
+Scenario: Decorations happy path on response
 	Given the Proxy 'P1' injects the calls
 	| Uri   | Response Content | StatusCode | Method |
 	| /test | Hello World      | 200        | GET    |
@@ -17,13 +18,12 @@ Scenario: Decorations happy path
 	| var | Host        | Path | Method |
 	| C1  | P1.ProxyUri | test | GET    |
 	When the Call 'C1' is executed
-	Then close the Proxy 'P1'
-	And 'C1.Response.Headers' contains the values
+	Then 'C1.Response.Headers' contains the values
 	| Key        | Values            |
 	| my-header  | ['Test']          |
 	| my-headers | ['Test1','Test2'] |
 
-Scenario: Decorations multiple
+Scenario: Decorations multiple on response
 	Given the Proxy 'P1' injects the calls
 	| Uri   | Response Content | StatusCode | Method |
 	| /test | Hello World      | 200        | GET    |
@@ -35,13 +35,12 @@ Scenario: Decorations multiple
 	| var | Host        | Path | Method |
 	| C1  | P1.ProxyUri | test | GET    |
 	When the Call 'C1' is executed
-	Then close the Proxy 'P1'
-	And 'C1.Response.Headers' contains the values
+	Then 'C1.Response.Headers' contains the values
 	| Key        | Values    |
 	| my-header  | ['Test']  |
 	| my-header1 | ['Test1'] |
 
-Scenario: Decorations composit
+Scenario: Decorations composit on response
 	Given the Proxy 'P1' injects the calls
 	| Uri   | Response Content | StatusCode | Method |
 	| /test | Hello World      | 200        | GET    |
@@ -52,7 +51,10 @@ Scenario: Decorations composit
 	| var | Host        | Path | Method |
 	| C1  | P1.ProxyUri | test | GET    |
 	When the Call 'C1' is executed
-	Then close the Proxy 'P1'
-	And 'C1.Response.Headers' contains the values
+	Then 'C1.Response.Headers' contains the values
 	| Key        | Values            |
 	| my-headers | ['Test1','Test2'] |
+
+Scenario: Decorations happy path on forwarding
+Scenario: Decorations multiple on forwarding
+Scenario: Decorations composit on forwarding

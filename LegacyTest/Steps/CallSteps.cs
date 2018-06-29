@@ -40,7 +40,14 @@ namespace LegacyTest.Steps
 
 
         [When(@"the Call '(.*)' is executed")]
+
+        [When(@"the Call '(.*)' is executed")]
         public void WhenTheCallIsExecuted(Call c)
+        {
+            Executor.Execute(()=>ExecuteCall(c));
+        }
+
+        private void ExecuteCall(Call c)
         {
             Stopwatch stopWatch = new Stopwatch();
 
