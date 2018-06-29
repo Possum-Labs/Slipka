@@ -185,6 +185,7 @@
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Simulate.feature.cs</LastGenOutput>
     </None>
+    <None Include="Original-ReportTemplate.cshtml" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -199,6 +200,9 @@
     <None Include="Features\Tagging.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Tagging.feature.cs</LastGenOutput>
+    </None>
+    <None Include="ReportTemplate.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="runtests.cmd" />
     <None Include="SpecRunTestProfile.xsd">

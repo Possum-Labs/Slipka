@@ -1,6 +1,4 @@
 Others
--Auto documentation 3/4 -- report
--Fix namespaces -- easy
 
 
 -Test expansion 1/10

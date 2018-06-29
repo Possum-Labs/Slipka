@@ -82,15 +82,16 @@ namespace LegacyTest
         {
             if (Repository.Any())
             {
-                Trace.WriteLine($"Repository for {typeof(T).Name}");
+                var msg = string.Empty;
                 foreach (var item in Repository.Where(x => x.Value != null))
                 {
                     var value = (item.Value is IDomainObject) ? ((IDomainObject)item.Value).LogFormat(): null;
                     if(string.IsNullOrWhiteSpace(value))
-                        Trace.WriteLine($"Key:{item.Key} Id:{item.Value}");
+                        msg += $"Key:{item.Key} Id:{item.Value}\n";
                     else
-                        Trace.WriteLine($"Key:{item.Key} Id:{value}");
+                        msg += $"Key:{item.Key} Id:{value}\n";
                 }
+                base.Log.Section($"Repository for {typeof(T).Name}", msg);
             }
         }
 
