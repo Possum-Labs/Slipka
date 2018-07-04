@@ -59,8 +59,8 @@ Scenario: Delay
 	| C1  | P1.ProxyUri | test | GET    |
 	When the Call 'C1' is executed
 	Then 'C1' has the values
-	|Duration |
-	|> 1000   |
+	| Duration |
+	| > 1000   |
 
 
 Scenario: Make sure that we don't forward the original call

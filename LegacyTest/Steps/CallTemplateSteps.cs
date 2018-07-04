@@ -17,11 +17,5 @@ namespace LegacyTest.Steps
         public CallTemplateSteps(ScenarioContext scenarioContext, FeatureContext featureContext) : base(scenarioContext, featureContext)
         {
         }
-        
-
-        protected override void Create(CallTemplate item)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

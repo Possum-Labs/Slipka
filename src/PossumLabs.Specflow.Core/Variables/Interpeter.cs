@@ -52,12 +52,12 @@ namespace PossumLabs.Specflow.Core.Variables
                     if (source == null)
                         throw new GherkinException($"Unable to resolve [{ index }] of { path.Aggregate((x, y) => x + '.' + y)}");
 
-                    var indexers = source.GetType().GetProperties().Where(p => p.Name == "Item" && p.GetIndexParameters().Count() == 1);
+                    var indexers = source.GetType().CachedGetProperties().Where(p => p.Name == "Item" && p.GetIndexParameters().One());
                     if (!indexers.Any())
                         throw new GherkinException($"The type of {source.GetType()} does not support [{ index }] of { path.Aggregate((x, y) => x + '.' + y)}");
 
-                    //TODO: add exception handeling
-                    return indexers.First().GetValue(source, new object[] { index });
+                    //TODO: v2 add exception handeling
+                    return indexers.First().GetValue(source,index.AsObjectArray());
                 };
             }
             else
@@ -95,8 +95,8 @@ namespace PossumLabs.Specflow.Core.Variables
                 }
                 catch (InvalidOperationException)
                 {
-                    throw new GherkinException($"Unable to resolve {parts.First()} of {path.Aggregate((x, y) => x + '.' + y)}. " +
-                        $"Did find {current.GetType().GetProperties().Select(x => x.Name).Aggregate((x, y) => x + ", " + y)}");
+                    throw new GherkinException($"Unable to resolve {parts.First()} of {path.LogFormat()}. " +
+                        $"Did find {current.GetType().CachedGetProperties().Select(x => x.Name).LogFormat()}");
                 }
             }
             return current;
@@ -111,9 +111,7 @@ namespace PossumLabs.Specflow.Core.Variables
             if (o == null)
             {
                 if (t.IsValueType)
-                {
                     return Activator.CreateInstance(t);
-                }
                 return null;
             }
 
@@ -122,46 +120,33 @@ namespace PossumLabs.Specflow.Core.Variables
             if (t.IsAssignableFrom(sourceType))
                 return o;
 
-            if (Repositories.Any(x => x.Type == t))
-            {
-                foreach (var conversion in Repositories.Where(x => x.Type == t).SelectMany(x => x.RegisteredConversions))
-                {
-                    if (conversion.Test.Invoke(o))
-                    {
-                        return conversion.Conversion.Invoke(o);
-                    }
-                }
-            }
+            var conversions = Repositories.Where(x => x.Type == t).SelectMany(x => x.RegisteredConversions).Where(c => c.Test.Invoke(o));
+            if (conversions.Any())
+                return conversions.First().Conversion.Invoke(o);
 
             //handle nullables
             var targetType = t;
             if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Nullable<>))
                 targetType = Nullable.GetUnderlyingType(targetType);
 
-            var convertConversions = typeof(System.Convert).GetMethods()
+            var convertConversions = typeof(System.Convert).CachedGetMethods()
                 .Where(x => x.ReturnType == targetType && x.Name.StartsWith("To") && x.GetParameters().Any(p => p.ParameterType == sourceType));
+
             if (convertConversions.Any())
-            {
-                return convertConversions.First().Invoke(null, new object[] { o });
-            }
+                return convertConversions.First().Invoke(null, o.AsObjectArray());
 
             if (targetType.IsEnum && sourceType == typeof(string))
-            {
                 return Enum.Parse(targetType, o as string);
-            }
 
             if (targetType.GetConstructors().Where(x => x.IsPublic && !x.IsStatic).Select(c => c.GetParameters())
-                .Any(x => x.Count() == 1 && x.First().ParameterType == sourceType))
-            {
+                .Any(x => x.One() && x.First().ParameterType == sourceType))
                 return Activator.CreateInstance(targetType, o);
-            }
 
-            var parseMethod = targetType.GetMethods(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public)
+            var parseMethod = targetType.CachedGetMethods().Where(m=>m.IsStatic && m.IsPublic)
                 .Where(m => m.Name == "Parse" && m.GetParameters().Length == 1 && m.GetParameters().First().ParameterType == sourceType);
+
             if (parseMethod.Any())
-            {
-                return parseMethod.First().Invoke(null, new object[] { o });
-            }
+                return parseMethod.First().Invoke(null, o.AsObjectArray());
 
             if (targetType == typeof(string))
                 return o.ToString();

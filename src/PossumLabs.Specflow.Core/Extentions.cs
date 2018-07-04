@@ -24,6 +24,15 @@ namespace PossumLabs.Specflow.Core
         public static bool None<T>(this IEnumerable<T> l)
             => !l.Any();
 
+        public static bool Many<T>(this IEnumerable<T> l)
+            => l.Count() > 1;
+
+        public static bool One<T>(this IEnumerable<T> l)
+            => l.Count() == 1;
+
+        public static object[] AsObjectArray(this object i)
+            => new object[] { i };
+
         public static IEnumerable ConvertToIEnumerable(this object o)
         {
             if (o == null)

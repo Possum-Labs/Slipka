@@ -8,12 +8,14 @@ namespace Slipka.Configuration
 {
     public class ConfigurationFactory
     {
-        public ConfigurationFactory(IConfiguration configuration)
+        public ConfigurationFactory(IConfiguration configuration, Status status)
         {
             Configuration = configuration;
+            Status = status;
         }
 
         public IConfiguration Configuration { get; }
+        private Status Status { get; }
 
         public T Create<T>()
         {
@@ -52,21 +54,29 @@ namespace Slipka.Configuration
 
                 if (String.IsNullOrWhiteSpace(valueOverride))
                     continue;
-                //TODO: better error messages for failed conversions and parsing
-                if (property.PropertyType == typeof(string))
-                    property.SetValue(ret, valueOverride);
+                try
+                {
+                    if (property.PropertyType == typeof(string))
+                        property.SetValue(ret, valueOverride);
 
-                else if (property.PropertyType == typeof(int))
-                    property.SetValue(ret, Convert.ToInt32(valueOverride));
+                    else if (property.PropertyType == typeof(int))
+                        property.SetValue(ret, Convert.ToInt32(valueOverride));
 
-                else if (property.PropertyType == typeof(bool))
-                    property.SetValue(ret, Convert.ToBoolean(valueOverride));
+                    else if (property.PropertyType == typeof(double))
+                        property.SetValue(ret, Convert.ToDouble(valueOverride));
 
-                else if (property.PropertyType == typeof(TimeSpan))
-                    property.SetValue(ret, TimeSpan.Parse(valueOverride));
+                    else if (property.PropertyType == typeof(bool))
+                        property.SetValue(ret, Convert.ToBoolean(valueOverride));
 
-                else
-                    throw new NotImplementedException($"Property of Type {property.PropertyType} is not supported.");
+                    else if (property.PropertyType == typeof(TimeSpan))
+                        property.SetValue(ret, TimeSpan.Parse(valueOverride));
+                    else
+                        throw new NotImplementedException($"Property of Type {property.PropertyType} is not supported.");
+                }
+                catch(Exception e)
+                {
+                    Status.LogConfigurationSetupException($"Unable to parse {valueOverride} into {property.Name} of type {property.GetType().Name}", e);
+                }
             }
 
             if (type.GetFields().Any())

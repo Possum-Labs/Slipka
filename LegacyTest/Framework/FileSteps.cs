@@ -18,7 +18,7 @@ namespace LegacyTest.Steps
         [Then(@"the File '(.*)' has the content '(.*)'")]
         public void ThenTheFileHasTheContent(IFile file, string content)
         {
-            //TODO: clean this up
+            //TODO: v2 clean this up
             using (var s = file.Stream)
             {
                 var r = new StreamReader(s);
@@ -30,11 +30,6 @@ namespace LegacyTest.Steps
                         $">>>File content: {fileContent} \n" +
                         $">>>Provided content: {content}");
             }
-        }
-
-        protected override void Create(IFile item)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -19,7 +19,7 @@ namespace PossumLabs.Specflow.Core.Exceptions
                 else if (ExpectException)
                     throw new AggregateException(new Exception($"One exception was expected, multiple were throw"), Exception, e);
                 else
-                    throw e;
+                    throw;
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using Slipka.DomainObjects;
+﻿using Slipka.Configuration;
+using Slipka.DomainObjects;
 using Slipka.Repositories;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace Slipka.Proxy
 {
     public class ProxyStore
     {
-        public ProxyStore(ISessionRepository sessionRepository)
+        public ProxyStore(ISessionRepository sessionRepository, ProxySettings settings)
         {
             Proxies = new List<Proxy>();
             SessionRepository = sessionRepository;
@@ -19,9 +20,8 @@ namespace Slipka.Proxy
 
             System.Timers.Timer asyncUpdater = new System.Timers.Timer();
             asyncUpdater.Elapsed += AsyncUpdater_Elapsed;
-            asyncUpdater.Interval = 5000;
+            asyncUpdater.Interval = settings.ProxyPersistanceLoop;
             asyncUpdater.Enabled = true;
-
         }
 
         private void AsyncUpdater_Elapsed(object sender, System.Timers.ElapsedEventArgs e)

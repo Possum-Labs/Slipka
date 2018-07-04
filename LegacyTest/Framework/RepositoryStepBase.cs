@@ -25,14 +25,17 @@ namespace LegacyTest
             get => (T)Repository[name];
         }
 
-        protected void Add(string name, T item)
+        public void Add(string name, T item)
         {
             if (Repository.ContainsKey(name))
                 throw new GherkinException($"There is already a varaible of type {typeof(T)} and name {name}");
             Repository.Add(name, item);
         }
 
-        abstract protected void Create(T item);
+        virtual protected void Create(T item)
+        {
+            throw new NotImplementedException("Create is not supported for this repository.");
+        }
 
         [BeforeScenario]
         public void RegisterRepositoryWithInterpeter()
@@ -45,7 +48,7 @@ namespace LegacyTest
         [StepArgumentTransformation]
         public List<T> TransformList(Table table)
         {
-            var dupes = table.Header.GroupBy(x => x.Split().Aggregate((y, z) => y + "." + z).ToUpper()).Where(x => x.Count() > 1);
+            var dupes = table.Header.GroupBy(x => x.Split().Aggregate((y, z) => y + "." + z).ToUpper()).Where(x => x.Many());
             if (dupes.Any())
                 throw new GherkinException($"the columns {dupes.LogFormat()} are effectively duplicates, matching of columns is case insesnitive");
 
@@ -59,7 +62,7 @@ namespace LegacyTest
         [StepArgumentTransformation]
         public Dictionary<string, T> TransformDictionary(Table table)
         {
-            var dupes = table.Header.GroupBy(x => x.Split().Aggregate((y,z)=>y+"."+z).ToUpper()).Where(x => x.Count() > 1);
+            var dupes = table.Header.GroupBy(x => x.Split().Aggregate((y,z)=>y+"."+z).ToUpper()).Where(x => x.Many());
             if (dupes.Any())
                 throw new GherkinException($"the columns {dupes.LogFormat()} are effectively duplicates, matching of columns is case insesnitive");
 

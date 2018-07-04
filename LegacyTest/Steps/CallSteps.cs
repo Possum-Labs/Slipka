@@ -14,7 +14,7 @@ using TechTalk.SpecFlow;
 namespace LegacyTest.Steps
 {
     [Binding]
-    public class CallSteps : RepositoryStepBase<Call>
+    sealed public class CallSteps : RepositoryStepBase<Call>, IDisposable
     {
         public CallSteps(ScenarioContext scenarioContext, FeatureContext featureContext) : base(scenarioContext, featureContext)
         {
@@ -24,11 +24,6 @@ namespace LegacyTest.Steps
 
         private HttpClientHandler Handler { get; }
         private HttpClient Client { get; }
-
-        protected override void Create(Call item)
-        {
-            throw new NotImplementedException();
-        }
 
         [Given(@"the Calls?")]
         public void GivenTheCalls(Dictionary<string, Call> calls)
@@ -110,6 +105,12 @@ namespace LegacyTest.Steps
             {
                 c.Response.Content = response.Content.ReadAsStringAsync().Result;
             }
+        }
+
+        public void Dispose()
+        {
+            Handler.Dispose();
+            Client.Dispose();
         }
     }
 }

@@ -12,5 +12,7 @@ namespace Slipka.Configuration
         public string ConnectionString { get; set; }
         [ConfigurationMember("Database")]
         public string Database { get; set; }
+        [ConfigurationMember("ChunkSizeBytes")]
+        public int ChunkSizeBytes { get; set; }
     }
 }

@@ -28,7 +28,7 @@ namespace PossumLabs.Specflow.Core.Validations
 
         private Interpeter Interpeter { get; }
 
-        public Predicate<object> MakePredicate(string predicate)
+        public virtual Predicate<object> MakePredicate(string predicate)
         {
             if (Parser.IsTest.IsMatch(predicate))
                 return ProcessTest(predicate);

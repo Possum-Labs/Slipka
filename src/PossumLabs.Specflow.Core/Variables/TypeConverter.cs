@@ -12,7 +12,7 @@ namespace PossumLabs.Specflow.Core.Variables
             Test = test;
         }
 
-        public Func<object, IValueObject> Conversion { get; private set; }
-        public Predicate<object> Test { get; private set; }
+        public Func<object, IValueObject> Conversion { get; }
+        public Predicate<object> Test { get; }
     }
 }

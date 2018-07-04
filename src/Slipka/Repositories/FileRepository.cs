@@ -15,6 +15,7 @@ namespace Slipka.Repositories
     {
 
         private SlipkaContext Context { get; }
+        private string RetainDataUntil => "retain_data_until";
 
         public FileRepository(SlipkaContext context)
         {
@@ -30,7 +31,7 @@ namespace Slipka.Repositories
         {
             var batch = 100;
             var filter = Builders<GridFSFileInfo>.Filter.And(
-                Builders<GridFSFileInfo>.Filter.Lt(x => x.Metadata["retain_data_untill"], DateTime.UtcNow));
+                Builders<GridFSFileInfo>.Filter.Lt(x => x.Metadata[RetainDataUntil], DateTime.UtcNow));
             var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
             var options = new GridFSFindOptions
             {
@@ -67,7 +68,7 @@ namespace Slipka.Repositories
                 Metadata = new BsonDocument
                 {
                     { "session", session.Id },
-                    { "retain_data_untill", session.RetainDataUntil }
+                    { RetainDataUntil, session.RetainDataUntil }
                 }
             };
 

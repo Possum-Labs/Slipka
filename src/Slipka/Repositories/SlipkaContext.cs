@@ -16,7 +16,7 @@ namespace Slipka.Repositories
     {
         private IMongoDatabase Database { get; }
 
-        public SlipkaContext(MongoSettings settings)
+        public SlipkaContext(MongoSettings settings, Status status)
         {
             var client = new MongoClient(settings.ConnectionString);
             Database = client.GetDatabase(settings.Database);
@@ -24,11 +24,13 @@ namespace Slipka.Repositories
             Bucket = new GridFSBucket(Database, options: new GridFSBucketOptions
             {
                 BucketName = "bodies",
-                ChunkSizeBytes = 1048576, // 1MB
+                ChunkSizeBytes = settings.ChunkSizeBytes, 
             });
-
+            Status = status;
             CreateIndex();
         }
+
+        private Status Status { get; }
 
         async Task CreateIndex()
         {
@@ -53,7 +55,7 @@ namespace Slipka.Repositories
             }
             catch(Exception ex)
             {
-                //TODO: error logs?
+                Status.LogMongoSetupException(command, ex);
             }
 
             await Messages.Indexes.DropAllAsync();
@@ -75,7 +77,7 @@ namespace Slipka.Repositories
             }
             catch (Exception ex)
             {
-                //TODO: error logs?
+                Status.LogMongoSetupException(command, ex);
             }
         }
 

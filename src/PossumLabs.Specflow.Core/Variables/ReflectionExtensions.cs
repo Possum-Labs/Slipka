@@ -12,14 +12,11 @@ namespace PossumLabs.Specflow.Core.Variables
 {
     public static class ReflectionExtensions
     {
-        public static IEnumerable<ValueMemberInfo> GetValueMembers(this Type t, BindingFlags bindingAttr)
-            => t.GetFields(bindingAttr)
-                .Select(f => new ValueMemberInfo(f))
-                .Concat(t.GetProperties(bindingAttr)
-                .Select(p => new ValueMemberInfo(p)));
-
         public static IEnumerable<ValueMemberInfo> GetValueMembers(this Type t)
-            => t.GetValueMembers(BindingFlags.Public | BindingFlags.Instance);
+            => t.CachedGetFields()
+                .Select(f => new ValueMemberInfo(f))
+                .Concat(t.CachedGetProperties()
+                .Select(p => new ValueMemberInfo(p)));
 
         public static bool HasAllPropertiesAndFieldsOf(this object target, object subset)
         {
@@ -63,8 +60,8 @@ namespace PossumLabs.Specflow.Core.Variables
 
         public static object MapTo(this Dictionary<string, KeyValuePair<string, string>> values, Type desiredType, Interpeter interpeter)
         {
-            var members = desiredType.GetValueMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.SetProperty);
-            var constructors = desiredType.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
+            var members = desiredType.GetValueMembers();
+            var constructors = desiredType.CachedGetConstructors();
 
             var groups = values.Keys.Select(x => Split(x).First());
             var unmatched = groups.Except(members.Select(x => x.Name.ToUpper()));
@@ -81,9 +78,9 @@ namespace PossumLabs.Specflow.Core.Variables
             {
                 var keys = values.Keys.Where(k => k.Split().First() == name);
                 object item;
-                if (keys.Count() == 1 && keys.First().Split().Count() == 1)
+                if (keys.One() && keys.First().Split().One())
                     item = interpeter.Get(t, values[name].Value);
-                else if (keys.Any(k => k.Split().Count() == 1))
+                else if (keys.Any(k => k.Split().One()))
                     throw new GherkinException($"You can't specify the object and set properties on the object, columns {keys.LogFormat(x => values[x].Key)} are in conflict");
                 else
                     item = keys.ToDictionary(x => x.Recurse(), x => values[x]).MapTo(t, interpeter);
@@ -97,8 +94,8 @@ namespace PossumLabs.Specflow.Core.Variables
             object ret;
             if (unmatched.Any())
             {
-                var possibles = constructors.Where(c => unmatched.Except(c.GetParameters().Select(p => p.Name.ToUpper())).Count() == 0);
-                var valid = possibles.Where(c => c.GetParameters().Where(p => !p.IsOptional).Select(p => p.Name.ToUpper()).Except(groups).Count() == 0);
+                var possibles = constructors.Where(c => unmatched.Except(c.GetParameters().Select(p => p.Name.ToUpper())).None());
+                var valid = possibles.Where(c => c.GetParameters().Where(p => !p.IsOptional).Select(p => p.Name.ToUpper()).Except(groups).None());
                 var ctor = valid.OrderBy(c => c.GetParameters().Count()).Reverse().FirstOrDefault();
 
                 if (ctor == null)

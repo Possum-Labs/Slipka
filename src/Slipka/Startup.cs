@@ -15,6 +15,7 @@ using Slipka.Configuration;
 using Slipka.Graphql;
 using Slipka.Repositories;
 using Slipka.Proxy;
+using System.IO;
 
 namespace Slipka
 {
@@ -30,14 +31,16 @@ namespace Slipka
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var configurationFactory = new ConfigurationFactory(Configuration);
+            var status = new Status();
+            var configurationFactory = new ConfigurationFactory(Configuration, status);
 
             services.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
 
             services.AddMvc();
+            services.AddSingleton(status);
             services.AddSingleton(configurationFactory.Create<MongoSettings>());
             services.AddSingleton(configurationFactory.Create<ProxySettings>());
-            services.AddSingleton(new SlipkaContext(configurationFactory.Create<MongoSettings>())); //start the DB configuration
+            services.AddSingleton(new SlipkaContext(configurationFactory.Create<MongoSettings>(),status)); //start the DB configuration
             services.AddTransient<ISessionRepository, SessionRepository>();
             services.AddTransient<IMessageRepository, MessageRepository>();
             services.AddTransient<IFileRepository, FileRepository>();
@@ -68,6 +71,18 @@ namespace Slipka
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.Use(async (context, next) => {
+                await next();
+                if (context.Response.StatusCode == 404 &&
+                   !Path.HasExtension(context.Request.Path.Value) &&
+                   !context.Request.Path.Value.StartsWith("/api/") &&
+                   !context.Request.Path.Value.StartsWith("/graphql/"))
+                {
+                    context.Request.Path = "/index.html";
+                    await next();
+                }
+            });
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -76,7 +91,12 @@ namespace Slipka
             app.UseGraphQLHttp<ISchema>(new GraphQLHttpOptions());
 
             app.UseGraphiQl();
-            app.UseMvc();
+
+            app.UseMvcWithDefaultRoute();
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+
+            //app.UseMvc();
         }
 
  

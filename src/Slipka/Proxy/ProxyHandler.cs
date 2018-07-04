@@ -209,9 +209,9 @@ namespace Slipka.Proxy
         {
             return options.Where(
                 c =>
-                ((c.Method == null) || (c.Method == target.Method)) &&
-                ((c.Uri == null) || (new Regex(c.Uri, RegexOptions.IgnoreCase).IsMatch(target.Uri.AbsolutePath))) &&
-                ((ignoreDuration || c.Duration == null) ||(target.Duration != null && c.Duration<=target.Duration)) &&
+                (c.Method == null || c.Method == target.Method) &&
+                (c.Uri == null || new Regex(c.Uri, RegexOptions.IgnoreCase).IsMatch(target.Uri.AbsolutePath)) &&
+                (c.Duration == null || ignoreDuration || (target.Duration != null && c.Duration<=target.Duration)) &&
                 (c.Request == null || c.Request.Headers == null || c.Request.Headers.Count == 0 || c.Request.Headers.Any(h =>
                     request.Headers.Any(t => t.Key == h.Key && t.Values.Intersect(h.Values).Any()))
                 ) &&

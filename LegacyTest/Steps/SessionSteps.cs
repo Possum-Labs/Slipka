@@ -18,14 +18,5 @@ namespace LegacyTest.Steps
         public SessionSteps(ScenarioContext scenarioContext, FeatureContext featureContext) : base(scenarioContext, featureContext)
         {
         }
-
-        protected override void Create(Session l)
-        {
-            throw new NotImplementedException();
-        }
-
-        //TODO: cleanup
-        new public void Add(string key, Session value) 
-            => base.Add(key, value);
     }
 }

@@ -23,5 +23,9 @@ namespace Slipka.Configuration
         public TimeSpan DefaultRetainedFor { get; set; }
         [ConfigurationMember("MaxRetainedFor")]
         public TimeSpan MaxRetainedFor { get; set; }
+        [ConfigurationMember("GridFsCleanupLoop")]
+        public int GridFsCleanupLoop { get; set; }
+        [ConfigurationMember("ProxyPersistanceLoop")]
+        public double ProxyPersistanceLoop { get; set; }
     }
 }

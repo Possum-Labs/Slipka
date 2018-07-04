@@ -7,8 +7,8 @@ namespace PossumLabs.Specflow.Core
 {
     public static class Parser
     {
-        public static Regex IsVariable = new Regex(@"[a-zA-W]\w*(\.[a-zA-Z]\w*)*");
-        public static Regex IsValidMappedHeader = new Regex(@"[a-zA-W]\w*([\. ][a-zA-Z]\w*)*");
+        public static Regex IsVariable = new Regex(@"[a-zA-Z]\w*(\.[a-zA-Z]\w*)*");
+        public static Regex IsValidMappedHeader = new Regex(@"[a-zA-Z]\w*([\. ][a-zA-Z]\w*)*");
         public static string VaraibleKey = "var";
 
         // "== 1"   "~= 2"   "!= 1"    ">= 1"    "> 2"   "< 1"   "<= 2"

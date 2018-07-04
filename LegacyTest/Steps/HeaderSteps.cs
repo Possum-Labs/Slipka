@@ -18,14 +18,5 @@ namespace LegacyTest.Steps
         public HeaderSteps(ScenarioContext scenarioContext, FeatureContext featureContext) : base(scenarioContext, featureContext)
         {
         }
-
-        protected override void Create(Header l)
-        {
-            throw new NotImplementedException();
-        }
-
-        //TODO: cleanup
-        new public void Add(string key, Header value) 
-            => base.Add(key, value);
     }
 }

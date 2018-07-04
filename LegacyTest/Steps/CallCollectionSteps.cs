@@ -18,14 +18,5 @@ namespace LegacyTest.Steps
         public CallCollectionSteps(ScenarioContext scenarioContext, FeatureContext featureContext) : base(scenarioContext, featureContext)
         {
         }
-
-        protected override void Create(CallCollection l)
-        {
-            throw new NotImplementedException();
-        }
-
-        //TODO: cleanup
-        new public void Add(string key, CallCollection value) 
-            => base.Add(key, value);
     }
 }

@@ -1,11 +1,19 @@
 Others
-
-
+-Documentation
+  -Tooling
+  -How to download / use happy path
+  -Detailed documentation
 -Test expansion 1/10
+  -Argument validations
 -Add basic UI
--Add UI unittests
+  -emergency log (ui first)
+  -Add UI unittests
 -docker build
--test in build
--reports of test runs
--emergency log (ui first)
--Argument validations -- test cases
+  -test in build
+  -upload report of test runs
+
+
+
+
+
+
