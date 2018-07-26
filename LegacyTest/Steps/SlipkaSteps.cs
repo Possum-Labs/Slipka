@@ -32,7 +32,7 @@ namespace LegacyTest.Steps
             Wrapper.RegisterRecording(new CallTemplate { Method = "POST" });
             Wrapper.RegisterRecording(new CallTemplate { Method = "PUT" });
             ProxySteps.AddDefault("Host", Wrapper.ProxyUri.ToString());
-            WebDriverManager.BaseUrl=Wrapper.ProxyUri;
+            WebDriverManager.BaseUrl=new Uri(Wrapper.ProxyUri.ToString().Replace("localhost","slipka"));
         }
 
         [Given(@"injecting")]

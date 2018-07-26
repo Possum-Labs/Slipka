@@ -15,7 +15,7 @@ namespace PossumLabs.Specflow.Core.Validations
         public Func<object, string> Predicate { get; }
         public string Text { get; }
 
-        public Exception Validate(object o)
+        public virtual Exception Validate(object o)
         {
             var msg = Predicate.Invoke(o);
             if (!string.IsNullOrWhiteSpace(msg))

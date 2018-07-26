@@ -12,6 +12,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -61,7 +62,7 @@ namespace Slipka.Proxy
 
             if (Injecting(call, requestMessage))
             {
-                var responseTemplate = Matches(Session.InjectedCalls, call, requestMessage, Message.Empty, ignoreDuration:true).First();
+                var responseTemplate = Matches(Session.InjectedCalls, call, requestMessage, Message.Empty, ignoreResponseAttributes:true).First();
 
                 call.Injected = true;
                 if (int.TryParse(responseTemplate.StatusCode, out var code))
@@ -72,13 +73,15 @@ namespace Slipka.Proxy
 
                 if (responseTemplate.Response != null)
                 {
+                    var contentHeaders = responseTemplate.Response.Headers.Where(h => h.Key.ToUpper() == "Content-Type".ToUpper());
+                    ParseContentHeaders(contentHeaders, out var encoding, out var mediaType);
                     if (responseTemplate.Response.Content != null)
-                        response.Content = new StringContent(responseTemplate.Response.Content);
+                        response.Content = new StringContent(responseTemplate.Response.Content, encoding, mediaType);
                     else
-                        response.Content = new StringContent(string.Empty);
+                        response.Content = new StringContent(string.Empty, encoding, mediaType);
 
-                    foreach (var h in response.Headers)
-                        foreach (var i in h.Value)
+                    foreach (var h in responseTemplate.Response.Headers.Except(contentHeaders))
+                        foreach (var i in h.Values)
                             response.Headers.Add(h.Key, i);
                 }
                 Tag(call, requestMessage);
@@ -105,6 +108,47 @@ namespace Slipka.Proxy
                     Tag(call, requestMessage, responseMessage);
                     return response;
                 });
+        }
+
+        private void ParseContentHeaders(IEnumerable<Header> contentHeaders, out Encoding encoding, out string mediaType)
+        {
+            encoding = Encoding.Default;
+            mediaType = MediaTypeNames.Text.Plain;
+            if (contentHeaders.None())
+                return;
+            var header = contentHeaders.First();
+            var charsetRegex = new Regex("charset=(.*)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            var mediaTypeRegex = new Regex("[a-z]+/.*", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            foreach (var v in header.Values)
+            {
+                if (charsetRegex.IsMatch(v))
+                {
+                    var e = charsetRegex.Match(v).Groups[1].Value.ToUpper().Replace("-","");
+                    switch (e)
+                    {
+                        case "UTF8":
+                            encoding = Encoding.UTF8;
+                            break;
+                        case "UTF7":
+                            encoding = Encoding.UTF7;
+                            break;
+                        case "UTF32":
+                            encoding = Encoding.UTF32;
+                            break;
+                        case "UNICODE":
+                            encoding = Encoding.Unicode;
+                            break;
+                        case "BIGENDIANUNICODE":
+                            encoding = Encoding.BigEndianUnicode;
+                            break;
+                        case "ASCII":
+                            encoding = Encoding.ASCII;
+                            break;
+                    }
+                }
+                if (mediaTypeRegex.IsMatch(v))
+                    mediaType = v;
+            }
         }
 
         private void Tag(Call call, Message requestMessage, Message responseMessage = null)
@@ -203,19 +247,20 @@ namespace Slipka.Proxy
             => Matches(Session.RecordedCalls, call, request, response ?? Message.Empty).Any();
 
         private bool Injecting(Call call, Message request, Message response = null) 
-            => Matches(Session.InjectedCalls, call, request, response ?? Message.Empty, ignoreDuration:true).Any();
+            => Matches(Session.InjectedCalls, call, request, response ?? Message.Empty, ignoreResponseAttributes:true).Any();
 
-        private IEnumerable<CallTemplate> Matches(List<CallTemplate> options, Call target, Message request, Message response, bool ignoreDuration = false)
+        private IEnumerable<CallTemplate> Matches(List<CallTemplate> options, Call target, Message request, Message response, bool ignoreResponseAttributes = false)
         {
             return options.Where(
                 c =>
                 (c.Method == null || c.Method == target.Method) &&
                 (c.Uri == null || new Regex(c.Uri, RegexOptions.IgnoreCase).IsMatch(target.Uri.AbsolutePath)) &&
-                (c.Duration == null || ignoreDuration || (target.Duration != null && c.Duration<=target.Duration)) &&
+                (ignoreResponseAttributes || c.Duration == null || (target.Duration != null && c.Duration<=target.Duration)) &&
+                (ignoreResponseAttributes || c.StatusCode == null || new Regex(c.StatusCode, RegexOptions.IgnoreCase).IsMatch(target.StatusCode?.ToString())) &&
                 (c.Request == null || c.Request.Headers == null || c.Request.Headers.Count == 0 || c.Request.Headers.Any(h =>
                     request.Headers.Any(t => t.Key == h.Key && t.Values.Intersect(h.Values).Any()))
                 ) &&
-                (c.Response == null || c.Response.Headers == null || c.Response.Headers.Count == 0 || c.Response.Headers.Any(h =>
+                (ignoreResponseAttributes || c.Response == null || c.Response.Headers == null || c.Response.Headers.Count == 0 || c.Response.Headers.Any(h =>
                     response.Headers.Any(t => t.Key == h.Key && t.Values.Intersect(h.Values).Any()))
                 )
                 );

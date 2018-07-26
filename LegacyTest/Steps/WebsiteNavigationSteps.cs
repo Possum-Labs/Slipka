@@ -15,7 +15,7 @@ namespace LegacyTest.Steps
         public WebsiteNavigationSteps(ScenarioContext scenarioContext, FeatureContext featureContext) : base(scenarioContext, featureContext)
         { }
 
-        [Given(@"Navigated to the (Homepage|Create Proxy)")]
+        [Given(@"navigated to the (Homepage|Create Proxy)")]
         public void GivenNavigatedTo(string page)
         {
             switch(page)
@@ -31,7 +31,7 @@ namespace LegacyTest.Steps
             } 
         }
 
-        [Given(@"Navigated to the (Session) for Proxy (.*)")]
+        [Given(@"navigated to the (Session) for Proxy (.*)")]
         public void GivenNavigatedTo(string page, ProxyWrapper proxy)
         {
             switch (page)

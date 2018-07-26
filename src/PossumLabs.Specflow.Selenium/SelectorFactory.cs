@@ -28,7 +28,9 @@ namespace PossumLabs.Specflow.Selenium
                     ByNested,
                     ByText,
                     ByTitle,
-                    ByLabelledBy
+                    ByLabelledBy,
+                    RadioByName,
+                    SpecialButtons
            };
 
         //https://w3c.github.io/using-aria/
@@ -43,19 +45,25 @@ namespace PossumLabs.Specflow.Selenium
                     return elements.SelectMany(e => driver.FindElements(By.Id(e.GetAttribute("for")))).Select(e => new Element(e, driver));
                 return new Element[] { };
             };
-
+        
+        //label[text()[normalize-space(.)='Bob']]/*[self::input]
         //<label>target<input type = "text" ></ label >
         //label[text()='{target}']/*[self::input or self::textarea or self::select]
         virtual protected Func<string, IWebDriver, IEnumerable<Element>> ByNestedInLabel =>
             (target, driver) => driver
-            .FindElements(By.XPath($"//label[text()={target.XpathEncode()}]/*[self::input or self::textarea or self::select]"))
+            .FindElements(By.XPath($"//label[text()[normalize-space(.)={target.XpathEncode()}]]/*[self::input or self::textarea or self::select or self::button]"))
+            .Select(e => new Element(e, driver));
+
+        virtual protected Func<string, IWebDriver, IEnumerable<Element>> SpecialButtons =>
+            (target, driver) => driver
+            .FindElements(By.XPath($"//*[@type={target.XpathEncode()} and (@type='submit' or @type='reset') and (self::input or self::button)]"))
             .Select(e => new Element(e, driver));
 
         //<input aria-label="target">
         //*[(self::a or self::button or @role='button' or @role='link' or @role='menuitem' or self::input or self::textarea or self::select) and @aria-label='{target}']
         virtual protected Func<string, IWebDriver, IEnumerable<Element>> ByNested =>
             (target, driver) => driver
-            .FindElements(By.XPath($"//*[(self::a or self::button or @role='button' or @role='link' or @role='menuitem' or self::input or self::textarea or self::select) and @aria-label={target.XpathEncode()}]"))
+            .FindElements(By.XPath($"//*[(self::a or self::button or self::input or self::textarea or self::select or @role='button' or @role='link' or @role='menuitem' ) and (text()={target.XpathEncode()} or label[text()={target.XpathEncode()}] or @aria-label={target.XpathEncode()} or (@type='radio' and @value={target.XpathEncode()}))]"))
             .Select(e => new Element(e, driver));
 
         //<a href = "https://www.w3schools.com/html/" >target</a>
@@ -69,6 +77,16 @@ namespace PossumLabs.Specflow.Selenium
         //a[@title='{target}']
         virtual protected Func<string, IWebDriver, IEnumerable<Element>> ByTitle =>
             (target, driver) => driver.FindElements(By.XPath($"//a[@title={target.XpathEncode()}]")).Select(e => new Element(e, driver));
+
+        //<input type="radio" id="i1" name="target"
+        virtual protected Func<string, IWebDriver, IEnumerable<Element>> RadioByName =>
+            (target, driver) =>
+            {
+                var elements = driver.FindElements(By.XPath($"//input[@type='radio' and @name='{target}']"));
+                if (elements.Any())
+                    return new Element[] { new RadioElement(elements, driver) };
+                return new Element[] { };
+            };
 
         //<input aria-labelledby= "l1 l2 l3"/>
         //*[(self::a or self::button or @role='button' or @role='link' or @role='menuitem' or self::input or self::textarea or self::select) and  @aria-labelledby]
@@ -84,7 +102,7 @@ namespace PossumLabs.Specflow.Selenium
                         var labels = ids.SelectMany(id => driver.FindElements(By.Id(id))).Select(l => l.Text);
                         var t = target;
                         foreach (var l in labels)
-                            t.Replace(l, string.Empty);
+                            t = t.Replace(l, string.Empty);
                         return string.IsNullOrWhiteSpace(t);
                     }).Select(e => new Element(e, driver));
                 }

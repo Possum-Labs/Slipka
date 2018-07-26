@@ -124,6 +124,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>OrderViolations.feature</DependentUpon>
     </Compile>
+    <Compile Include="Features\Selectors.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Selectors.feature</DependentUpon>
+    </Compile>
     <Compile Include="Features\Simulate.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -136,6 +141,7 @@
     <Compile Include="Selenium\FrameworkInitializationSteps.cs" />
     <Compile Include="Selenium\ValidationSteps.cs" />
     <Compile Include="Selenium\WebDriverStepBase.cs" />
+    <Compile Include="Steps\ErrorReportingSteps.cs" />
     <Compile Include="Steps\SlipkaInjectionSteps.cs" />
     <Compile Include="Steps\HeaderSteps.cs" />
     <Compile Include="Steps\SessionSteps.cs" />
@@ -202,6 +208,10 @@
     <None Include="Features\OrderViolations.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>OrderViolations.feature.cs</LastGenOutput>
+    </None>
+    <None Include="Features\Selectors.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>Selectors.feature.cs</LastGenOutput>
     </None>
     <None Include="Features\Simulate.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>

@@ -26,8 +26,12 @@ namespace LegacyTest.Selenium
         public void WhenSelectingTheElement(Selector selector)
             => WebDriver.Select(selector).Select();
 
-        [When(@"entering '(.*)' for the element '(.*)'")]
-        public void WhenEnteringForTheElement(Selector selector, string text)
+        [When(@"entering '(.*)' into element '(.*)'")]
+        public void WhenEnteringForTheElement(string text, Selector selector)
             => WebDriver.Select(selector).Enter(text);
+
+        [Given(@"navigated to '(.*)'")]
+        public void GivenNavigatedTo(string page)
+            => WebDriver.NavigateTo(page);
     }
 }

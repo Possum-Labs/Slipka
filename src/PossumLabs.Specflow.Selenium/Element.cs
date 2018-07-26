@@ -4,6 +4,7 @@ using System.Text;
 using System.Linq;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
+using PossumLabs.Specflow.Core.Validations;
 
 namespace PossumLabs.Specflow.Selenium
 {
@@ -21,24 +22,42 @@ namespace PossumLabs.Specflow.Selenium
         public string Tag => WebElement.TagName;
         public IEnumerable<string> Classes => WebElement.GetAttribute("class").Split(' ').Select(x=>x.Trim());
         public string Id => WebElement.GetAttribute("id");
-        public object Value => WebElement.GetAttribute("value") ?? WebElement.Text;
+        public virtual List<string> Values => new List<string>() { WebElement.GetAttribute("value"), WebElement.Text };
 
         public void Select()
             => WebElement.Click();
 
         //https://www.grazitti.com/resources/articles/automating-different-input-fields-using-selenium-webdriver/
 
-        public void Enter(string text)
+        public virtual void Enter(string text)
         {
             if(WebElement.TagName == "select")
             {
-                //TODO: v2 add more robust select logic
                 var select = new SelectElement(WebElement);
-                select.SelectByText(text);
+                try
+                {
+                    select.SelectByText(text);
+                    return;
+                }
+                catch
+                {
+                    select.DeselectByValue(text);
+                    return;
+                }
             }
             else if (WebElement.TagName == "input" && !String.IsNullOrEmpty(WebElement.GetAttribute("list")))
             {
-               //TODO: v2 Dropdown input
+                var select = new SelectElement(WebElement);
+                try
+                {
+                    select.SelectByText(text);
+                    return;
+                }
+                catch
+                {
+                    select.DeselectByValue(text);
+                    return;
+                }
             }
             //TODO: v2 Radio buttons
             //TODO: v2 Check Boxes

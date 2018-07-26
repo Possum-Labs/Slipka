@@ -22,7 +22,7 @@ namespace PossumLabs.Specflow.Selenium
 
         //TODO: check this form
         public void NavigateTo(string url)
-            => Driver.Navigate().GoToUrl(RootUrl().AbsoluteUri+"/"+url);
+            => Driver.Navigate().GoToUrl(RootUrl().AbsoluteUri+url);
 
         public Element Select(Selector selector)
         {

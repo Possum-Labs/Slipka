@@ -47,7 +47,8 @@ namespace PossumLabs.Specflow.Core.Validations
             else if (Parser.IsJson.IsMatch(predicate))
                 return ProcessJson(predicate);
             else
-                return v => Interpeter.Convert<string>(v) == predicate;
+                return v => 
+                Interpeter.Convert<string>(v) == predicate;
         }
 
         public Predicate<object> ProcessSubstitution(string predicate)

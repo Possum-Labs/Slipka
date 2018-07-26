@@ -20,7 +20,7 @@ namespace PossumLabs.Specflow.Selenium
                 if (field != null)
                     o = o.Resolve(field);
                 if (MakePredicate(constructor).Invoke(o) != true)
-                    return $" the value was '{o}' wich was not '{constructor}'";
+                    return $" the value was '{((Element)o).Values.LogFormat()}' wich was not '{constructor}'";
                 return null;
             }, constructor);
 
@@ -35,7 +35,7 @@ namespace PossumLabs.Specflow.Selenium
                 return BuildPredicate(predicate, (e) => e.Classes.Contains(Parser.IsClass.Match(predicate).Groups[1].Value));
             if (Parser.IsId.IsMatch(predicate))
                 return BuildPredicate(predicate, (e) => e.Id == Parser.IsId.Match(predicate).Groups[1].Value);
-            return BuildPredicate(predicate, (e) =>  base.MakePredicate(predicate).Invoke(e.Value));
+            return BuildPredicate(predicate, (e) => e.Values.Select(value => base.MakePredicate(predicate).Invoke(value)).Any());
         }
 
         public Predicate<object> BuildPredicate(string predicate, Func<Element,bool> test)

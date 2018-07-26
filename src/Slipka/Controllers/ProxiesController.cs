@@ -109,6 +109,8 @@ namespace Slipka.Controllers
         {
             if (!SessionAvailableForModification(id, out var error, out Session session))
                 return error;
+            if (string.IsNullOrWhiteSpace(call.StatusCode))
+                call.StatusCode = HttpStatusCode.OK.ToString();
             lock (session.InjectedCalls)
             {
                 session.InjectedCalls.Add(call);
