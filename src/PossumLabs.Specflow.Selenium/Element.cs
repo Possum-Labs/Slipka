@@ -10,8 +10,8 @@ namespace PossumLabs.Specflow.Selenium
 {
     public class Element
     {
-        private IWebElement WebElement { get; }
-        private IWebDriver WebDriver { get; }
+        protected IWebElement WebElement { get; }
+        protected IWebDriver WebDriver { get; }
 
         public Element(IWebElement element, IWebDriver driver)
         {
@@ -31,35 +31,6 @@ namespace PossumLabs.Specflow.Selenium
 
         public virtual void Enter(string text)
         {
-            if(WebElement.TagName == "select")
-            {
-                var select = new SelectElement(WebElement);
-                try
-                {
-                    select.SelectByText(text);
-                    return;
-                }
-                catch
-                {
-                    select.DeselectByValue(text);
-                    return;
-                }
-            }
-            else if (WebElement.TagName == "input" && !String.IsNullOrEmpty(WebElement.GetAttribute("list")))
-            {
-                var select = new SelectElement(WebElement);
-                try
-                {
-                    select.SelectByText(text);
-                    return;
-                }
-                catch
-                {
-                    select.DeselectByValue(text);
-                    return;
-                }
-            }
-            //TODO: v2 Radio buttons
             //TODO: v2 Check Boxes
             WebElement.Clear();
             WebElement.SendKeys(text);

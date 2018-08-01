@@ -42,36 +42,67 @@ namespace PossumLabs.Specflow.Selenium
             {
                 var elements = driver.FindElements(By.XPath($"//label[@for and text()={target.XpathEncode()}]"));
                 if (elements.Any())
-                    return elements.SelectMany(e => driver.FindElements(By.Id(e.GetAttribute("for")))).Select(e => new Element(e, driver));
+                    return elements.SelectMany(e => driver.FindElements(By.Id(e.GetAttribute("for"))))
+                    .Select(e => CreateElement(driver, e));
                 return new Element[] { };
             };
+
+        virtual protected Element CreateElement(IWebDriver driver, IWebElement e)
+        {
+            if (e.TagName == "select" || (e.TagName == "input" && !string.IsNullOrEmpty(e.GetAttribute("list"))))
+                return new SelectElement(e, driver);
+            if (e.TagName == "input" && e.GetAttribute("type") == "radio")
+            {
+                var elements = driver.FindElements(By.XPath($"//input[@type='radio' and @name='{e.GetAttribute("name")}']"));
+                return new RadioElement(elements, driver);
+            }
+            return new Element(e, driver);
+        }
         
+
         //label[text()[normalize-space(.)='Bob']]/*[self::input]
         //<label>target<input type = "text" ></ label >
         //label[text()='{target}']/*[self::input or self::textarea or self::select]
         virtual protected Func<string, IWebDriver, IEnumerable<Element>> ByNestedInLabel =>
             (target, driver) => driver
             .FindElements(By.XPath($"//label[text()[normalize-space(.)={target.XpathEncode()}]]/*[self::input or self::textarea or self::select or self::button]"))
-            .Select(e => new Element(e, driver));
+            .Select(e => CreateElement(driver, e));
 
         virtual protected Func<string, IWebDriver, IEnumerable<Element>> SpecialButtons =>
             (target, driver) => driver
             .FindElements(By.XPath($"//*[@type={target.XpathEncode()} and (@type='submit' or @type='reset') and (self::input or self::button)]"))
-            .Select(e => new Element(e, driver));
+            .Select(e => CreateElement(driver, e));
 
         //<input aria-label="target">
         //*[(self::a or self::button or @role='button' or @role='link' or @role='menuitem' or self::input or self::textarea or self::select) and @aria-label='{target}']
         virtual protected Func<string, IWebDriver, IEnumerable<Element>> ByNested =>
             (target, driver) => driver
-            .FindElements(By.XPath($"//*[(self::a or self::button or self::input or self::textarea or self::select or @role='button' or @role='link' or @role='menuitem' ) and (text()={target.XpathEncode()} or label[text()={target.XpathEncode()}] or @aria-label={target.XpathEncode()} or (@type='radio' and @value={target.XpathEncode()}))]"))
-            .Select(e => new Element(e, driver));
+            .FindElements(By.XPath(
+                $"//*[(" +
+                    $"self::a or " +
+                    $"self::button or " +
+                    $"self::input or " +
+                    $"self::select or " +
+                    $"self::textarea or " +
+                    $"@role='button' or " +
+                    $"@role='link' or " +
+                    $"@role='menuitem' " +
+                $") and (" +
+                    $"normalize-space(text())={target.XpathEncode()} or " +
+                    $"label[text()={target.XpathEncode()}] or " +
+                    $"(@type='button' and @value={target.XpathEncode()}) or " +
+                    $"@name={target.XpathEncode()} or " +
+                    $"@aria-label={target.XpathEncode()} or " +
+                    $"(@type='radio' and @value={target.XpathEncode()})" +
+                $")]"))
+            .Select(e => CreateElement(driver, e));
 
         //<a href = "https://www.w3schools.com/html/" >target</a>
         //*[(self::a or self::button or @role='button' or @role='link' or @role='menuitem') and text()='{target}']
         virtual protected Func<string, IWebDriver, IEnumerable<Element>> ByText =>
             (target, driver) => driver
             .FindElements(By.XPath($"//*[(self::a or self::button or @role='button' or @role='link' or @role='menuitem') and text()={target.XpathEncode()}]"))
-            .Select(e => new Element(e, driver));
+            .Select(e => CreateElement(driver, e));
 
         //<a href = "https://www.w3schools.com/html/" title="target">Visit our HTML Tutorial</a>
         //a[@title='{target}']
@@ -93,7 +124,9 @@ namespace PossumLabs.Specflow.Selenium
         virtual protected Func<string, IWebDriver, IEnumerable<Element>> ByLabelledBy =>
             (target, driver) =>
             {
-                var elements = driver.FindElements(By.XPath($"//*[(self::a or self::button or @role='button' or @role='link' or @role='menuitem' or self::input or self::textarea or self::select) and  @aria-labelledby]"));
+                var elements = driver.FindElements(By.XPath($"//*[" +
+                    $"(self::a or self::button or @role='button' or @role='link' or @role='menuitem' or self::input or self::textarea or self::select) " +
+                    $"and  @aria-labelledby]"));
                 if (elements.Any())
                 {
                     return elements.Where(e =>
@@ -104,7 +137,7 @@ namespace PossumLabs.Specflow.Selenium
                         foreach (var l in labels)
                             t = t.Replace(l, string.Empty);
                         return string.IsNullOrWhiteSpace(t);
-                    }).Select(e => new Element(e, driver));
+                    }).Select(e => CreateElement(driver, e));
                 }
                 return new Element[] { };
             };

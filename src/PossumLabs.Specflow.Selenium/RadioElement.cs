@@ -16,6 +16,7 @@ namespace PossumLabs.Specflow.Selenium
             Options = new Dictionary<string, IWebElement>();
             foreach(var e in elements)
             {
+                Options.Add(e.GetAttribute("value"), e);
                 if (!string.IsNullOrWhiteSpace(e.GetAttribute("aria-labelledby")))
                 {
                     var lables = e.GetAttribute("aria-labelledby").Split(' ').Select(id => driver.FindElement(By.Id(id)));
@@ -39,6 +40,12 @@ namespace PossumLabs.Specflow.Selenium
                 if (!string.IsNullOrWhiteSpace(e.Text))
                 {
                     Options.Add(e.Text, e);
+                    continue;
+                }
+                var parrent = e.FindElement(By.XPath(".."));
+                if(parrent.TagName == "label")
+                {
+                    Options.Add(parrent.Text, e);
                     continue;
                 }
                 throw new NotImplementedException("unknown labeling of radio buttons.");

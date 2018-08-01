@@ -93,13 +93,13 @@ Examples:
 	| 10  button for                   | target | <label for="b1">target</label><button id="b1"></button>                                                   |
 	| 11  button aria-label            | target | <button aria-label="target"></button>                                                                     |
 	| 12  button aria-labelledby       | t1 t2  | <button aria-labelledby= "l1 l2"></button><label id="l1">t1</label> <label id="l2">t2</label>             |
-	| 13  input button                 | target | <input type="button">target</input>                                                                       |
+	| 13  input button                 | target | <input type="button" value="target"/>                                                                     |
 	| 14  input button nested          | target | <label>target<input type="button"></input></label>                                                        |
 	| 15  input button for             | target | <label for="b1">target</label><input type="button" id="b1"></input>                                       |
 	| 16  input button aria-label      | target | <input type="button" aria-label="target"></input>                                                         |
 	| 17  input button aria-labelledby | t1 t2  | <input type="button" aria-labelledby= "l1 l2"></input><label id="l1">t1</label> <label id="l2">t2</label> |
 	| 18  div button                   | target | <div role='button'>target</div>                                                                           |
-	| 19  div button label             | target | <div role='button'><label>target</label></div>                                                            |
+	| 19  div button label             | target | <div role='button'><label>target</label></div>                                                            |oing
 	| 20  div link                     | target | <div role='link'>target</div>                                                                             |
 	| 21  div link label               | target | <div role='link'><label>target</label></div>                                                              |
 	| 22  div menuitem                 | target | <div role='menuitem'>target</div>                                                                         |
