@@ -16,8 +16,5 @@ provide easy reporting after you are done; for instance, you can specify differe
 ## Decorating: 
 add identifiers to all traffic passing through the proxy; for instance, add a test identifier to find it easily in your server logs.
 
-[![become a patron](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/PossumLabs)
-
-
 
 
