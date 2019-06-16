@@ -200,7 +200,7 @@ namespace PossumLabs.Specflow.Slipka
             var task = GraphQLClient.PostAsync(queury);
             var graphQLResponse = task.Result;
             var calls = graphQLResponse.GetDataFieldAs<CallRecord[]>("calls");
-            return new CallCollection(calls);
+            return new CallCollection(calls ?? new CallRecord[0] );
         }
 
         public void CloseAsync()

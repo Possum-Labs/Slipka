@@ -1,0 +1,24 @@
+DSL -> domain specific language
+
+Specflow -> Cucumber for .Net
+Gherkin -> laungauge definition -> Given When Then
+
+PossumLabs.DSL
+- Add variables to Specflow
+- Add try / catch 
+- File support
+- Validation Support
+
+PossumLabs.DSL.Slipka
+- Add ability to work with Slipka
+- Recording, injection, tagging, decorating
+
+PossumLabs.DSL.Selenium
+- Interacting with websites
+- navigate, click, enter xxx for field, find on page, validate value
+
+PossumLabs.DSL.ServiceNow
+- Interact with ServiceNow
+
+PossumLabs.DSL.SalesForce
+- Interact with SalesForce

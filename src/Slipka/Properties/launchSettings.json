@@ -10,12 +10,12 @@
   "profiles": {
     "Slipka": {
       "commandName": "Project",
-      "launchBrowser": true,
       "launchUrl": "graphql",
       "environmentVariables": {
+        "ConnectionString": "mongodb://localhost:27017/",
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "http://localhost:4445/"
+      "applicationUrl": ""
     }
   }
 }

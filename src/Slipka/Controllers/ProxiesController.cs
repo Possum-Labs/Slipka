@@ -74,8 +74,8 @@ namespace Slipka.Controllers
                 session.ProxyPort = GetNewPort(session);
                 proxy = new Slipka.Proxy.Proxy(session, FileRepository, MessageRepository, Store.SaveSession);
                 Store.Add(proxy);
+                proxy.Init(); // possibly not thread safe
             }
-            proxy.Init();
             return session;
         }
 

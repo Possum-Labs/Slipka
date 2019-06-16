@@ -1,0 +1,35 @@
+
+Slipka videos
+
+Overview / introduction
+An overview of Slipka, the untrustworthy proxy. 
+At the end of this you will have an overview of what Slipka 
+can do and provide
+
+Configure
+How to configure Slipka for non-out of the box configurations, 
+like changing ports and using an existing Mongo DB
+
+Injecting
+How to use Slipka as a Service-oriented architecture 
+equivalent of a mocking framework. How to simulate error 
+conditions, slow calls, etc.
+
+Recording
+How to use Slipka to record traffic for reporting and review
+
+Tagging
+How to tag calls and sessions for reporting purposes, 
+tieing all calls to a particular test and test run
+
+Decorating
+How to use the decoration features to make it possible to trace your test through the service layer.
+
+Reporting
+How to use the GraphQL reporting API
+
+Selenium
+How to configure Slipka to be used with Selenium 
+
+
+Done with the rest of the todo list;

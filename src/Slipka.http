@@ -9,7 +9,7 @@ POST {{slipkaHost}}:{{slipkaAdminPort}}/api/proxies
 content-type: application/json
 
 {
-        "targetHost":"google.com",
+        "targetHost":"play.google.com",
         "targetPort" : "80"
 }
 

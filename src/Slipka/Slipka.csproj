@@ -7,18 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Slipka\src\app\MongoSettings.ts" />
-    <None Remove="Slipka\src\app\proxySettings.ts" />
-    <None Remove="Slipka\src\app\StateElement.ts" />
-    <None Remove="Slipka\src\app\Status.ts" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="wwwroot\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="graphiql" Version="1.1.0" />
+  <PackageReference Include="graphiql" Version="1.1.0" />
     <PackageReference Include="GraphQL.Server.Transports.AspNetCore" Version="3.1.0-alpha0022" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.0" />
@@ -33,13 +22,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.AspNetCore.Proxy\Microsoft.AspNetCore.Proxy.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <TypeScriptCompile Include="Slipka\src\app\stateElement.ts" />
-    <TypeScriptCompile Include="Slipka\src\app\mongoSettings.ts" />
-    <TypeScriptCompile Include="Slipka\src\app\status.ts" />
-    <TypeScriptCompile Include="Slipka\src\app\proxySettings.ts" />
   </ItemGroup>
 
 </Project>
