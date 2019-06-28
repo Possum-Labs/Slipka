@@ -12,7 +12,7 @@
       "commandName": "Project",
       "launchUrl": "graphql",
       "environmentVariables": {
-        "ConnectionString": "mongodb://localhost:27017/",
+        "SLIPKA_ConnectionString": "mongodb://localhost:27017/",
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "applicationUrl": ""

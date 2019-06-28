@@ -16,6 +16,7 @@ using Slipka.Graphql;
 using Slipka.Repositories;
 using Slipka.Proxy;
 using System.IO;
+using GraphiQl;
 
 namespace Slipka
 {
@@ -33,14 +34,18 @@ namespace Slipka
         {
             var status = new Status();
             var configurationFactory = new ConfigurationFactory(Configuration, status);
+            var settings = configurationFactory.Create<MongoSettings>();
+
+            Console.WriteLine($"ConnectionString:{settings.ConnectionString}");
 
             services.AddSingleton<IDependencyResolver>(s => new FuncDependencyResolver(s.GetRequiredService));
 
             services.AddMvc();
             services.AddSingleton(status);
-            services.AddSingleton(configurationFactory.Create<MongoSettings>());
+            services.AddSingleton(settings);
             services.AddSingleton(configurationFactory.Create<ProxySettings>());
-            services.AddSingleton(new SlipkaContext(configurationFactory.Create<MongoSettings>(),status)); //start the DB configuration
+           
+            services.AddSingleton<SlipkaContext>();
             services.AddTransient<ISessionRepository, SessionRepository>();
             services.AddTransient<IMessageRepository, MessageRepository>();
             services.AddTransient<IFileRepository, FileRepository>();
@@ -58,22 +63,21 @@ namespace Slipka
             services.AddSingleton<SlipkaMutation>();
             services.AddSingleton<SlipkaQuery>();
             services.AddSingleton<ISchema, SlipkaSchema>();
-
-            services.AddGraphQLHttp();
+            services.AddSingleton<IDocumentExecuter, DocumentExecuter>();
 
             services.Configure<ExecutionOptions>(options =>
             {
                 options.EnableMetrics = true;
                 options.ExposeExceptions = true;
             });
+
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseDeveloperExceptionPage();
-
-            app.UseGraphQLHttp<ISchema>(new GraphQLHttpOptions());
 
             app.UseGraphiQl();
 
