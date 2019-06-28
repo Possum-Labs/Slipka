@@ -7,11 +7,11 @@ trigger:
 - master
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'ubuntu-16.04'
 
 variables:
-  dockerId: bashamer  # Replace with your Docker ID for Docker Hub or the admin user name for the Azure Container Registry
-  imageName: slipka  # Replace with the name of the image you want to publish
+  dockerId: 'bashamer'
+  imageName: 'slipka'  
 
 steps:
 - script: |
