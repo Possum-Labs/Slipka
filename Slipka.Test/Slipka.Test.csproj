@@ -27,6 +27,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Features\Decoration.feature.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Decoration.feature</DependentUpon>
+    </Compile>
     <Compile Update="Features\Injection.feature.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -49,6 +54,7 @@
     </SpecFlowFeatureFiles>
     <SpecFlowFeatureFiles Update="Features\Decoration.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>Decoration.feature.cs</LastGenOutput>
     </SpecFlowFeatureFiles>
     <SpecFlowFeatureFiles Update="Features\Expiration.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>
