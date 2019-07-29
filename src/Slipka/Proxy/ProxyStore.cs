@@ -88,6 +88,7 @@ namespace Slipka.Proxy
             {
                 proxy = Proxies.FirstOrDefault(x => x.Session.Id == id);
                 Proxies.RemoveAll(x => x.Session.Id == id);
+                LastUpdated.Remove(id);
             }
             if (proxy != null)
             {

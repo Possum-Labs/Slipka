@@ -31,7 +31,14 @@ namespace Slipka.Proxy
 
         public void Dispose()
         {
-            Host.Dispose();
+            try
+            {
+                Host.Dispose();
+            }
+            catch
+            {
+                Console.WriteLine("Failed to dispose a proxy, might never have started.");
+            }
         }
 
         public void Init()

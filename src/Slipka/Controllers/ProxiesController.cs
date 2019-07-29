@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -35,7 +36,7 @@ namespace Slipka.Controllers
         private IFileRepository FileRepository { get; }
         private IMessageRepository MessageRepository { get; }
         private int[] ReservedPorts { get; }
-        private Random Random { get; } 
+        private Random Random { get; }
 
         // POST: api/Proxies
         [HttpPost]
@@ -45,8 +46,8 @@ namespace Slipka.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var open = value.OpenFor == null ? Settings.DefaultOpenFor:TimeSpan.Parse(value.OpenFor);
-            var retained = value.RetainedFor == null ? Settings.DefaultRetainedFor:TimeSpan.Parse(value.RetainedFor);
+            var open = value.OpenFor == null ? Settings.DefaultOpenFor : TimeSpan.Parse(value.OpenFor);
+            var retained = value.RetainedFor == null ? Settings.DefaultRetainedFor : TimeSpan.Parse(value.RetainedFor);
 
             var session = new Session
             {
@@ -57,7 +58,7 @@ namespace Slipka.Controllers
             };
 
             if (value.TaggedCalls != null)
-                session.TaggedCalls.AddRange(value.TaggedCalls.Select(x=>x.AsCallTemplate));
+                session.TaggedCalls.AddRange(value.TaggedCalls.Select(x => x.AsCallTemplate));
             if (value.RecordedCalls != null)
                 session.RecordedCalls.AddRange(value.RecordedCalls.Select(x => x.AsCallTemplate));
             if (value.InjectedCalls != null)
@@ -71,18 +72,62 @@ namespace Slipka.Controllers
             Slipka.Proxy.Proxy proxy;
             lock (ReservedPorts)
             {
-                session.ProxyPort = GetNewPort(session);
-                proxy = new Slipka.Proxy.Proxy(session, FileRepository, MessageRepository, Store.SaveSession);
-                Store.Add(proxy);
-                proxy.Init(); // possibly not thread safe
+                var retries = 0;
+                while (retries < 10)
+                {
+                    retries++;
+
+                    session.ProxyPort = GetNewPort(session);
+                    proxy = new Slipka.Proxy.Proxy(session, FileRepository, MessageRepository, Store.SaveSession);
+                    try
+                    {
+                        Store.Add(proxy);
+                        proxy.Init(); // possibly not thread safe
+                        return session;
+                    }
+                    catch (Exception e)
+                    {
+                        Store.Remove(proxy.Session.Id);
+                        Console.WriteLine($"try {retries}, Failed to start proxy {e.Message}");
+                    }
+                }
+                throw new Exception($"Failed to find a port in {retries} tries");
             }
-            return session;
         }
 
         private int GetNewPort(Session value)
         {
-            var available = ReservedPorts.Except(Store.All.Select(x => x.ProxyPort)).ToArray();
-            return available.ElementAt(Random.Next(available.Count()));
+            var available = ReservedPorts.Except(Store.All.Select(x => x.ProxyPort)).ToList();
+
+            var retries = 0;
+            while (retries < 1000)
+            {
+                retries++;
+                using (TcpClient tcpClient = new TcpClient())
+                {
+                    // check if the port happens to be in use
+                    try
+                    {
+                        var port = available.ElementAt(Random.Next(available.Count()));
+                        var result = tcpClient.BeginConnect("127.0.0.1", port, null, null);
+
+                        var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromMilliseconds(1000));
+
+                        if (success)
+                        {
+                            available.RemoveAll(x => x == port);
+                            tcpClient.EndConnect(result);
+                            throw new Exception("in use");
+                        }
+                        return port;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"try {retries}, Port in use; available {available.Count} options message {e.Message}");
+                    }
+                }
+            }
+            throw new Exception($"Failed to start proxyt in {retries} tries");
         }
 
         // DELETE: api/ApiWithActions/5
