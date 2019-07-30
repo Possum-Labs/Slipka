@@ -106,9 +106,15 @@ namespace Slipka.Controllers
                 using (TcpClient tcpClient = new TcpClient())
                 {
                     // check if the port happens to be in use
+                    if(available.Count() < 1)
+                    {
+                        Console.WriteLine("Fatal: ports exhausted");
+                        throw new Exception("No available ports left for new proxies.");
+                    }
+                    var port = available.ElementAt(Random.Next(available.Count()));
                     try
                     {
-                        var port = available.ElementAt(Random.Next(available.Count()));
+                        
                         var result = tcpClient.BeginConnect("127.0.0.1", port, null, null);
 
                         var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromMilliseconds(1000));
@@ -123,6 +129,8 @@ namespace Slipka.Controllers
                     }
                     catch (Exception e)
                     {
+                        if (e.Message.Contains("Connection Refused", StringComparison.InvariantCultureIgnoreCase))
+                            return port;
                         Console.WriteLine($"try {retries}, Port in use; available {available.Count} options message {e.Message}");
                     }
                 }
