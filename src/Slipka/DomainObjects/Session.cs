@@ -65,7 +65,7 @@ namespace Slipka.DomainObjects
             int state = 0;
             lock(Calls)
             {
-                state += Calls.Count(x=>x.RequestId != ObjectId.Empty);
+                state += Calls.Count(x => x.RequestId != ObjectId.Empty);
                 state += Calls.Count(x => x.ResponseId != ObjectId.Empty);
                 state += Tags.Count();
             }

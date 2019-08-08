@@ -84,7 +84,6 @@ namespace Slipka
             app.UseMvcWithDefaultRoute();
             app.UseDefaultFiles();
             app.UseStaticFiles();
-
         }
 
  

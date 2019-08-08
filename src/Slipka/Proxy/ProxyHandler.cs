@@ -202,7 +202,8 @@ namespace Slipka.Proxy
         private void Record(HttpContent content, Call call, Message message, Action<ObjectId> record)
         {
             if (content != null)
-                content.ReadAsByteArrayAsync().ContinueWith(data => SaveMessage(message, record, data.Result));
+                content.ReadAsByteArrayAsync()
+                    .ContinueWith(data => SaveMessage(message, record, data.Result));
             else
                 SaveMessage(message, record);
         }
@@ -236,11 +237,17 @@ namespace Slipka.Proxy
                             {
                                 record(message.InternalId);
                                 RaiseImportantDataAddedEvent();
-                            });
-                    });
+                            }, TaskContinuationOptions.OnlyOnRanToCompletion)
+                            .ContinueWith(t => { Console.WriteLine($"SaveMessage.1.{t.Exception}"); },
+                                TaskContinuationOptions.OnlyOnFaulted);
+                    }, TaskContinuationOptions.OnlyOnRanToCompletion)
+                    .ContinueWith(t => { Console.WriteLine($"SaveMessage.2.{t.Exception}"); },
+                        TaskContinuationOptions.OnlyOnFaulted);
             else
-            MessageRepository.AddMessage(message)
-                .ContinueWith(task=> record(message.InternalId));
+                MessageRepository.AddMessage(message)
+                    .ContinueWith(task=> record(message.InternalId), TaskContinuationOptions.OnlyOnRanToCompletion)
+                    .ContinueWith(t => { Console.WriteLine($"SaveMessage.3.{t.Exception}"); },
+                        TaskContinuationOptions.OnlyOnFaulted);
         }
 
         private bool Recording(Call call, Message request, Message response = null) 
