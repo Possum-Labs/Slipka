@@ -27,9 +27,19 @@ namespace Slipka.Proxy
         private void AsyncUpdater_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             foreach (var session in this.All)
-            {
+            { 
                 var state = session.State();
                 var record = LastUpdated[session.Id];
+                if(record.RemoveAwaited)
+                {
+                    InternalRemove(session.Id);
+                    continue;
+                }
+                if(record.Remove)
+                {
+                    record.RemoveAwaited = true;
+                    continue;
+                }
                 if (session.LeaveProxyOpenUntil < DateTime.UtcNow)
                 {
                     Remove(session.Id);
@@ -43,10 +53,17 @@ namespace Slipka.Proxy
 
         private void PersistSession(Session session)
         {
-            var record = LastUpdated[session.Id];
-            record.State = session.State();
-            record.LastUpdate = DateTime.Now;
-            SessionRepository.UpdateSession(session);
+            try
+            {
+                var record = LastUpdated[session.Id];
+                record.State = session.State();
+                record.LastUpdate = DateTime.Now;
+                SessionRepository.UpdateSession(session);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
         private List<Proxy> Proxies { get; }        
@@ -57,6 +74,8 @@ namespace Slipka.Proxy
         {
             public int State { get; set; }
             public DateTime LastUpdate { get; set; }
+            public bool Remove { get; set; }
+            public bool RemoveAwaited { get; set; }
         }
 
         public Proxy this[string id]
@@ -75,7 +94,6 @@ namespace Slipka.Proxy
             lock (Proxies)
             {
                 Proxies.Add(proxy);
-                var id = " "+proxy.Session.Id;
                 LastUpdated.Add(proxy.Session.Id, new Record());
             }
             SessionRepository.AddSession(proxy.Session);
@@ -83,6 +101,12 @@ namespace Slipka.Proxy
 
         public void Remove(string id)
         {
+            PersistSession(this[id].Session);
+            LastUpdated[id].Remove = true;
+        }
+
+        private void InternalRemove(string id)
+        { 
             Proxy proxy;
             lock (Proxies)
             {

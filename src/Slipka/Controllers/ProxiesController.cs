@@ -81,15 +81,16 @@ namespace Slipka.Controllers
                     proxy = new Slipka.Proxy.Proxy(session, FileRepository, MessageRepository, Store.SaveSession);
                     try
                     {
-                        Store.Add(proxy);
                         proxy.Init(); // possibly not thread safe
-                        return session;
                     }
                     catch (Exception e)
                     {
-                        Store.Remove(proxy.Session.Id);
+                        proxy.Dispose();
                         Console.WriteLine($"try {retries}, Failed to start proxy {e.Message}");
+                        continue;
                     }
+                    Store.Add(proxy);
+                    return session;
                 }
                 throw new Exception($"Failed to find a port in {retries} tries");
             }

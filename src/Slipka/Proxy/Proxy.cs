@@ -33,11 +33,20 @@ namespace Slipka.Proxy
         {
             try
             {
+                var task = Task.Run(async () => { await Host.StopAsync(); });
+                task.Wait();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Failed to stop a proxy: {e}");
+            }
+            try
+            { 
                 Host.Dispose();
             }
-            catch
+            catch(Exception e)
             {
-                Console.WriteLine("Failed to dispose a proxy, might never have started.");
+                Console.WriteLine($"Failed to dispose a proxy, might never have started: {e}");
             }
         }
 
