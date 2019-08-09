@@ -26,29 +26,27 @@ namespace Slipka.Proxy
 
         private void AsyncUpdater_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            foreach (var session in this.All)
+            Parallel.ForEach(this.All, session =>
             { 
                 var state = session.State();
                 var record = LastUpdated[session.Id];
                 if(record.RemoveAwaited)
                 {
                     InternalRemove(session.Id);
-                    continue;
+                    return;
                 }
                 if(record.Remove)
                 {
                     record.RemoveAwaited = true;
-                    continue;
+                    return;
                 }
                 if (session.LeaveProxyOpenUntil < DateTime.UtcNow)
                 {
                     Remove(session.Id);
-                    continue;
+                    return;
                 }
-                if (record.State == state)
-                    continue;
                 PersistSession(session);
-            }
+            });
         }
 
         private void PersistSession(Session session)
@@ -56,7 +54,6 @@ namespace Slipka.Proxy
             try
             {
                 var record = LastUpdated[session.Id];
-                record.State = session.State();
                 record.LastUpdate = DateTime.Now;
                 SessionRepository.UpdateSession(session);
             }
@@ -72,7 +69,6 @@ namespace Slipka.Proxy
 
         private class Record
         {
-            public int State { get; set; }
             public DateTime LastUpdate { get; set; }
             public bool Remove { get; set; }
             public bool RemoveAwaited { get; set; }
