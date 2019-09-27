@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace PossumLabs.Specflow.Slipka
 {
-    public class CallRecord : IDomainObject
+    public class CallRecord : IEntity
     {
         public CallRecord()
         {

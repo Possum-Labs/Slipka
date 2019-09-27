@@ -61,7 +61,7 @@ namespace Slipka.Test.Steps
             {
                 try
                 {
-                    FileManager.CreateFile(Encoding.UTF8.GetBytes(WebDriverManager.Current.PageSource), "source", "html");
+                    FileManager.PersistFile(Encoding.UTF8.GetBytes(WebDriverManager.Current.PageSource), "source", "html");
                 }
                 catch (UnhandledAlertException) { return; }
             }
@@ -88,8 +88,9 @@ namespace Slipka.Test.Steps
             ObjectContainer.RegisterInstanceAs(configFactory.Create<MovieLoggerConfig>());
             ObjectContainer.RegisterInstanceAs(configFactory.Create<ImageLoggingConfig>());
 
+            Register(new FileManager(new DatetimeManager(() => DateTime.Now)));
             ImageLogging = new ImageLogging(ObjectContainer.Resolve<ImageLoggingConfig>());
-            MovieLogger = new MovieLogger(ObjectContainer.Resolve<MovieLoggerConfig>(), Metadata);
+            MovieLogger = new MovieLogger(FileManager, ObjectContainer.Resolve<MovieLoggerConfig>(), Metadata);
 
             ObjectContainer.RegisterInstanceAs(ImageLogging);
             ObjectContainer.RegisterInstanceAs(MovieLogger);
@@ -104,7 +105,7 @@ namespace Slipka.Test.Steps
                 this.ObjectFactory,
                 new SeleniumGridConfiguration()));
 
-            Register(new FileManager(new DatetimeManager() { Now = () => DateTime.Now }));
+            
             FileManager.Initialize(FeatureContext.FeatureInfo.Title, ScenarioContext.ScenarioInfo.Title, null /*Specflow limitation*/);
 
             var templateManager = new PossumLabs.Specflow.Core.Variables.TemplateManager();

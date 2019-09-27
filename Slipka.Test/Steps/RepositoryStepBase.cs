@@ -91,7 +91,7 @@ namespace Slipka.Test.Steps
                 var msg = string.Empty;
                 foreach (var item in Repository.Where(x => x.Value != null))
                 {
-                    var value = (item.Value is IDomainObject) ? ((IDomainObject)item.Value).LogFormat(): null;
+                    var value = (item.Value is IEntity) ? ((IEntity)item.Value).LogFormat(): null;
                     if(string.IsNullOrWhiteSpace(value))
                         msg += $"Key:{item.Key} Id:{item.Value}\n";
                     else

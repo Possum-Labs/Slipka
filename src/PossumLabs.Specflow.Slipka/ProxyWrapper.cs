@@ -11,7 +11,7 @@ using System.Text;
 
 namespace PossumLabs.Specflow.Slipka
 {
-    public class ProxyWrapper : IDomainObject
+    public class ProxyWrapper : IEntity
     {
         public ProxyWrapper(Uri host, Uri destination, TimeSpan? openFor = null, TimeSpan? retainedFor =  null) : this(host)
         {
