@@ -1,6 +1,7 @@
 ﻿using BoDi;
-using PossumLabs.Specflow.Core;
-using PossumLabs.Specflow.Core.Variables;
+using PossumLabs.DSL;
+using PossumLabs.DSL.Core;
+using PossumLabs.DSL.Core.Variables;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,9 +11,9 @@ using System.Text;
 using System.Threading.Tasks;
 using TechTalk.SpecFlow;
 
-namespace Slipka.Test.Steps
+namespace Slipka.Test.English
 {
-    public abstract class RepositoryStepBase<T> : StepBase
+    public abstract class RepositoryStepBase<T> : StepsBase
         where T : IValueObject
     {
         public RepositoryStepBase(IObjectContainer objectContainer) : base(objectContainer)
@@ -59,7 +60,7 @@ namespace Slipka.Test.Steps
                 r => Repository.Map(table.Header.ToDictionary(
                            x => x.ToUpper(),
                            x => new KeyValuePair<string, string>(x, r[x])
-                       ).Augment(Repository.Defaults))).ToList();
+                       ).Augment(Repository.PropertyDefaults))).ToList();
         }
 
         [StepArgumentTransformation]
@@ -77,7 +78,7 @@ namespace Slipka.Test.Steps
                 r => Repository.Map(table.Header.Except(new[] { "var" }).ToDictionary(
                            x => x.ToUpper(),
                            x => new KeyValuePair<string, string>(x, r[x])
-                       ).Augment(Repository.Defaults)));
+                       ).Augment(Repository.PropertyDefaults)));
         }
         
         [StepArgumentTransformation]
@@ -102,6 +103,6 @@ namespace Slipka.Test.Steps
         }
 
         public void AddDefault(string key, string value)
-            => Repository.Defaults.Add(key, value);
+            => Repository.PropertyDefaults.Add(key, value);
     }
 }

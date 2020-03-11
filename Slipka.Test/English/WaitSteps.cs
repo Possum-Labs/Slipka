@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using TechTalk.SpecFlow;
 
-namespace Slipka.Test.Steps
+namespace Slipka.Test.English
 {
     [Binding]
     public sealed class WaitSteps

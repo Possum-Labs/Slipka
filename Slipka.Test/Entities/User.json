@@ -1,0 +1,12 @@
+[
+  {
+    "template": {
+    }
+  },
+  {
+    "name": "VIP",
+    "template": {
+      "IsVip": true
+    }
+  }
+]

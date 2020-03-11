@@ -1,6 +1,6 @@
 ﻿using BoDi;
-using PossumLabs.Specflow.Core;
-using PossumLabs.Specflow.Slipka.ValueObjects;
+using PossumLabs.DSL.Core;
+using PossumLabs.DSL.Slipka.ValueObjects;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TechTalk.SpecFlow;
 
-namespace Slipka.Test.Steps
+namespace Slipka.Test.English
 {
     [Binding]
     public class CallCollectionSteps : RepositoryStepBase<CallCollection>

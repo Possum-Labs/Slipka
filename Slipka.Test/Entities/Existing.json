@@ -1,0 +1,22 @@
+﻿[
+  {
+    "type": "User",
+    "values": [
+      {
+        "var": "Admin",
+        "template": "VIP",
+        "value": {
+          "Username": "possum",
+          "Password": "possum"
+        }
+      },
+      {
+        "var": "Guest",        
+        "value": {
+          "Username": "possum",
+          "Password": "possum"
+        }
+      }
+    ]
+  }
+]

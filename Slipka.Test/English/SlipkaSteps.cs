@@ -1,5 +1,6 @@
 ﻿using BoDi;
-using PossumLabs.Specflow.Slipka;
+using PossumLabs.DSL;
+using PossumLabs.DSL.Slipka;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,10 +8,10 @@ using System.Text;
 using System.Threading;
 using TechTalk.SpecFlow;
 
-namespace Slipka.Test.Steps
+namespace Slipka.Test.English
 {
     [Binding]
-    public sealed class SlipkaSteps: StepBase
+    public sealed class SlipkaSteps: StepsBase
     {
         public SlipkaSteps(IObjectContainer objectContainer) : base(objectContainer)
         {

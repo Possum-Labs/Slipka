@@ -1,5 +1,5 @@
 ﻿using BoDi;
-using PossumLabs.Specflow.Core.Files;
+using PossumLabs.DSL.Core.Files;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using TechTalk.SpecFlow;
 
-namespace Slipka.Test.Steps
+namespace Slipka.Test.English
 {
     [Binding]
     public sealed class FileSteps : RepositoryStepBase<IFile>

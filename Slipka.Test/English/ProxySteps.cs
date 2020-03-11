@@ -1,6 +1,6 @@
-﻿using Slipka.Test.Steps;
-using PossumLabs.Specflow.Core.Files;
-using PossumLabs.Specflow.Slipka;
+﻿using Slipka.Test.English;
+using PossumLabs.DSL.Core.Files;
+using PossumLabs.DSL.Slipka;
 using System;
 using System.Collections.Generic;
 using System.Linq;
